@@ -4,17 +4,26 @@ const config = require('./config');
 const { dbUrl } = config;
 
 const client = new MongoClient(dbUrl, { useUnifiedTopology: true });
+let db;
 
 async function connect() {
   // TODO: Conexión a la Base de Datos
-  let conn;
   try {
-    conn = await client.connect();
-    const db = client.db('mongodb://127.0.0.1:27017/DB_burguer-queen'); // Reemplaza <NOMBRE_DB> por el nombre del db
-    return db;
-  } catch (e) {
+    await client.connect();
+    const db = client.db('DB_burguer-queen');
+    console.log('--- Connected to the database');
+  } catch (error) {
     console.error('Error connecting to the database', error);
+    throw error; // Re-lanza el error para que el código que llame a esta función lo maneje
+  }
+}
+async function disconnect() {
+  try {
+    await client.close();
+    console.log('Disconnected from the database');
+  } catch (error) {
+    console.error('Error disconnecting from the database', error);
   }
 }
 
-module.exports = { connect };
+module.exports = { connect, disconnect, db };
