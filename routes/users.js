@@ -5,7 +5,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const { getUsers } = require('../controller/users');
 
-async function initAdminUser(app) {
+async function initAdminUser(app, next) {
   // Modified function signature to include 'app'
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
@@ -29,8 +29,10 @@ async function initAdminUser(app) {
       await users.insertOne(adminUser);
       console.log('Admin user created');
     }
+    next();
   } catch (error) {
     console.error('Error creating admin user:', error);
+    next();
   }
 }
 
