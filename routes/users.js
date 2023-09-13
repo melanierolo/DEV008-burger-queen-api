@@ -1,13 +1,15 @@
 const bcrypt = require('bcrypt');
+const { connect } = require('../connect.js');
 
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const { getUsers } = require('../controller/users');
 
-const initAdminUser = (app, next) => {
+async function initAdminUser(app) {
+  // Modified function signature to include 'app'
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
-    return next();
+    return;
   }
 
   const adminUser = {
@@ -15,14 +17,24 @@ const initAdminUser = (app, next) => {
     password: bcrypt.hashSync(adminPassword, 10),
     roles: { admin: true },
   };
-
   // TODO: crear usuaria admin
   // Primero ver si ya existe adminUser en base de datos
   // si no existe, hay que guardarlo
+  try {
+    const database = await connect();
+    const users = database.collection('users');
+    const existingUser = await users.findOne({ email: adminUser.email });
+    console.log('----adminUser', existingUser);
+    if (!existingUser) {
+      await users.insertOne(adminUser);
+      console.log('Admin user created');
+    }
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
+}
 
-  next();
-};
-
+module.exports = { initAdminUser };
 /*
  * Diagrama de flujo de una aplicación y petición en node - express :
  *
