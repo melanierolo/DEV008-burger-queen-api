@@ -6,7 +6,6 @@ const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
 const { connect } = require('./connect.js');
-const { initAdminUser } = require('./routes/users.js');
 
 const { port, secret } = config;
 
