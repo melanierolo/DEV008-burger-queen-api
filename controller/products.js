@@ -21,11 +21,49 @@ const { connect } = require('../connect.js');
  * @code {401} si no hay cabecera de autenticación
  */
 const getProducts = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
   try {
     const database = await connect();
     const productsCollection = database.collection('products');
     const products = await productsCollection.find({}).toArray();
-    res.json(products); // Send the list of products as a JSON response
+    const numberOfPages = Math.ceil(products.length / limit);
+    const response = {};
+
+    response.pagination = {
+      page: page,
+      pageSize: limit,
+      numberOfPages: numberOfPages,
+    };
+
+    if (startIndex > 0) {
+      response.link = {
+        first: `/products?page=1&limit=${limit}`,
+        prev: `/products?page=${page - 1}&limit=${limit}`,
+      };
+    }
+
+    if (endIndex < products.length) {
+      response.link = {
+        ...response.link,
+        next: `/products?page=${page + 1}&limit=${limit}`,
+        last: `/products?page=${numberOfPages}&limit=${limit}`,
+      };
+    }
+
+    response.result = products.slice(startIndex, endIndex).map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: product.type,
+      dateEntry: product.dateEntry,
+    }));
+    res.json(response); // Send the list of products as a JSON response
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
