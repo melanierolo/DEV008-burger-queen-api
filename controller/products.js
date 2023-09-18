@@ -69,6 +69,42 @@ const getProducts = async (req, res, next) => {
     next(error); // Pass the error to the error handling middleware
   }
 };
+
+/**
+ * @params {String} :productId `id` del producto
+ * @auth Requiere `token` de autenticación
+ * @response {Object} product
+ * @response {String} product._id Id
+ * @response {String} product.name Nombre
+ * @response {Number} product.price Precio
+ * @response {URL} product.image URL a la imagen
+ * @response {String} product.type Tipo/Categoría
+ * @response {Date} product.dateEntry Fecha de creación
+ * @code {200} si la autenticación es correcta
+ * @code {401} si no hay cabecera de autenticación
+ * @code {404} si el producto con `productId` indicado no existe
+ **/
+
+const getProductById = async (req, res, next) => {
+  const productId = req.params.productId;
+  const database = await connect();
+  const productsCollection = database.collection('products');
+  console.log(productId);
+  try {
+    const product = await productsCollection.findOne({ id: productId });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(product);
+  } catch (error) {
+    console.error('Error getting products:', error);
+    next(error); // Pass the error to the error handling middleware
+  }
+};
+
 module.exports = {
   getProducts,
+  getProductById,
 };

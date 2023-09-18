@@ -1,4 +1,4 @@
-const { getProducts } = require('../controller/products');
+const { getProducts, getProductById } = require('../controller/products');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 /** @module products */
@@ -14,20 +14,8 @@ module.exports = (app, nextMain) => {
    * @name GET /products/:productId
    * @description Obtiene los datos de un producto especifico
    * @path {GET} /products/:productId
-   * @params {String} :productId `id` del producto
-   * @auth Requiere `token` de autenticación
-   * @response {Object} product
-   * @response {String} product._id Id
-   * @response {String} product.name Nombre
-   * @response {Number} product.price Precio
-   * @response {URL} product.image URL a la imagen
-   * @response {String} product.type Tipo/Categoría
-   * @response {Date} product.dateEntry Fecha de creación
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {404} si el producto con `productId` indicado no existe
    */
-  app.get('/products/:productId', /*requireAuth,*/ (req, resp, next) => {});
+  app.get('/products/:productId', /*requireAuth,*/ getProductById);
 
   /**
    * @name POST /products
