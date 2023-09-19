@@ -2,6 +2,7 @@ const {
   getProducts,
   getProductById,
   createProduct,
+  deleteProduct,
 } = require('../controller/products');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
@@ -59,19 +60,8 @@ module.exports = (app, nextMain) => {
    * @path {DELETE} /products
    * @params {String} :productId `id` del producto
    * @auth Requiere `token` de autenticación y que el usuario sea **admin**
-   * @response {Object} product
-   * @response {String} product._id Id
-   * @response {String} product.name Nombre
-   * @response {Number} product.price Precio
-   * @response {URL} product.image URL a la imagen
-   * @response {String} product.type Tipo/Categoría
-   * @response {Date} product.dateEntry Fecha de creación
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin
-   * @code {404} si el producto con `productId` indicado no existe
    */
-  app.delete('/products/:productId', /*requireAdmin,*/ (req, resp, next) => {});
+  app.delete('/products/:productId', /*requireAdmin,*/ deleteProduct);
 
   nextMain();
 };
