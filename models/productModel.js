@@ -1,8 +1,8 @@
-export const defaultProduct = {
-  id: "",
-  name: "",
+export const schemaProduct = {
+  id: '',
+  name: '',
   price: 0,
-  image: "",
-  type: "",
-  dateEntry: new Date()
-}
+  image: '',
+  type: '',
+  dateEntry: new Date(),
+};

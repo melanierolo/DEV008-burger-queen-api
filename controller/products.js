@@ -155,6 +155,55 @@ const createProduct = async (req, res, next) => {
   }
 };
 
+/* -------------------UPDATE------------------------------*/
+/**
+ * @body {String} [name] Nombre
+ * @body {Number} [price] Precio
+ * @body {String} [imagen]  URL a la imagen
+ * @body {String} [type] Tipo/Categoría
+ * @response {Object} product
+ * @response {String} product._id Id
+ * @response {String} product.name Nombre
+ * @response {Number} product.price Precio
+ * @response {URL} product.image URL a la imagen
+ * @response {String} product.type Tipo/Categoría
+ * @response {Date} product.dateEntry Fecha de creación
+ * @code {200} si la autenticación es correcta
+ * @code {400} si no se indican ninguna propiedad a modificar
+ * @code {401} si no hay cabecera de autenticación
+ * @code {403} si no es admin
+ * @code {404} si el producto con `productId` indicado no existe
+ */
+const updateProduct = async (req, res, next) => {
+  const productId = req.params.productId;
+  const { name, price, image, type } = req.body;
+
+  if (!name && !price && !image && !type) {
+    return res
+      .status(400)
+      .json({ message: 'Ninguna propiedad a modificar fue indicada' });
+  }
+
+  try {
+    const database = await connect();
+    const productsCollection = database.collection('products');
+    const updatedProduct = await productsCollection.findOneAndUpdate(
+      { _id: new ObjectId(`${productId}`) },
+      { $set: { name, price, image, type } },
+      { returnOriginal: false }
+    );
+
+    if (!updatedProduct.value) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    res.json(updatedProduct.value);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    next(error);
+  }
+};
+
 /* ------------------- DELETE ------------------------- */
 /** 
     @response {Object} product
@@ -198,4 +247,5 @@ module.exports = {
   getProductById,
   createProduct,
   deleteProduct,
+  updateProduct,
 };
