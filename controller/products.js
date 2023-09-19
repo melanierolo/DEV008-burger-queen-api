@@ -1,4 +1,5 @@
 const { connect } = require('../connect.js');
+const { ObjectId } = require('mongodb');
 
 /*---------------------- Function to get a list of products ----------------------*/
 /**
@@ -89,9 +90,11 @@ const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
   const database = await connect();
   const productsCollection = database.collection('products');
-  console.log(productId);
+  console.log(typeof productId, productId);
   try {
-    const product = await productsCollection.findOne({ id: productId });
+    const product = await productsCollection.findOne({
+      _id: new ObjectId(`${productId}`),
+    });
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
