@@ -1,4 +1,8 @@
-const { getProducts, getProductById } = require('../controller/products');
+const {
+  getProducts,
+  getProductById,
+  createProduct,
+} = require('../controller/products');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 /** @module products */
@@ -21,25 +25,8 @@ module.exports = (app, nextMain) => {
    * @name POST /products
    * @description Crea un nuevo producto
    * @path {POST} /products
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
-   * @body {String} name Nombre
-   * @body {Number} price Precio
-   * @body {String} [imagen]  URL a la imagen
-   * @body {String} [type] Tipo/Categoría
-   * @response {Object} product
-   * @response {String} products._id Id
-   * @response {String} product.name Nombre
-   * @response {Number} product.price Precio
-   * @response {URL} product.image URL a la imagen
-   * @response {String} product.type Tipo/Categoría
-   * @response {Date} product.dateEntry Fecha de creación
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se indican `name` o `price`
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es admin
-   * @code {404} si el producto con `productId` indicado no existe
    */
-  app.post('/products', /*requireAdmin,*/ (req, resp, next) => {});
+  app.post('/products', /*requireAdmin,*/ createProduct);
 
   /**
    * @name PUT /products

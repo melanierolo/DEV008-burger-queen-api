@@ -56,7 +56,7 @@ const getProducts = async (req, res, next) => {
     }
 
     response.result = products.slice(startIndex, endIndex).map((product) => ({
-      id: product.id,
+      id: product._id,
       name: product.name,
       price: product.price,
       image: product.image,
@@ -104,7 +104,56 @@ const getProductById = async (req, res, next) => {
   }
 };
 
+/* --------------------- Create a product ---------------------*/
+/**
+ * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
+ * @body {String} name Nombre
+ * @body {Number} price Precio
+ * @body {String} [imagen]  URL a la imagen
+ * @body {String} [type] Tipo/Categoría
+ * @response {Object} product
+ * @response {String} products._id Id
+ * @response {String} product.name Nombre
+ * @response {Number} product.price Precio
+ * @response {URL} product.image URL a la imagen
+ * @response {String} product.type Tipo/Categoría
+ * @response {Date} product.dateEntry Fecha de creación
+ * @code {200} si la autenticación es correcta
+ * @code {400} si no se indican `name` o `price`
+ * @code {401} si no hay cabecera de autenticación
+ * @code {403} si no es admin
+ * @code {404} si el producto con `productId` indicado no existe
+ **/
+
+const createProduct = async (req, res, next) => {
+  const { id, name, price, image, type } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).json({ error: 'Name and price are required' });
+  }
+
+  try {
+    const database = await connect();
+    const productsCollection = database.collection('products');
+
+    const newProduct = {
+      name,
+      price,
+      image,
+      type,
+      dateEntry: new Date(),
+    };
+
+    const result = await productsCollection.insertOne(newProduct);
+    res.json(result);
+  } catch (error) {
+    console.error('Error getting products:', error);
+    next(error); // Pass the error to the error handling middleware
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
+  createProduct,
 };
