@@ -1,17 +1,16 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 const config = require('./config');
 
 const { dbUrl } = config;
 
-const client = new MongoClient(dbUrl, { useUnifiedTopology: true });
-let db;
-
 async function connect() {
   try {
-    await client.connect();
-    db = client.db('DB_burguer-queen');
+    await mongoose.connect(dbUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log('--- Connected to the database');
-    return db;
+    return mongoose.connection;
   } catch (error) {
     console.error('Error connecting to the database', error);
     throw error;
@@ -20,11 +19,11 @@ async function connect() {
 
 async function disconnect() {
   try {
-    await client.close();
+    await mongoose.disconnect();
     console.log('Disconnected from the database');
   } catch (error) {
     console.error('Error disconnecting from the database', error);
   }
 }
 
-module.exports = { connect, disconnect, db };
+module.exports = { connect, disconnect };

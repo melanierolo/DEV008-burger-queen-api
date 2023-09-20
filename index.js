@@ -6,10 +6,10 @@ const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
 const { connect } = require('./connect.js');
-
+const mongoose = require('mongoose');
 const { port, secret } = config;
 
-// Connect to mongoDB
+// Connect to MongoDB using Mongoose
 connect();
 
 const app = express();

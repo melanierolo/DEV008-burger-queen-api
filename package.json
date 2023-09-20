@@ -26,6 +26,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^5.8.1",
     "mongodb-memory-server": "^8.12.2",
+    "mongoose": "^7.5.2",
     "morgan": "^1.10.0"
   },
   "devDependencies": {

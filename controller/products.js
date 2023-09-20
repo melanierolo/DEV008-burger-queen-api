@@ -1,5 +1,4 @@
-const { connect } = require('../connect.js');
-const { ObjectId } = require('mongodb');
+const { Product } = require('../models/ProductModel.js');
 
 /*---------------------- Function to get a list of products ----------------------*/
 /**
@@ -29,9 +28,7 @@ const getProducts = async (req, res, next) => {
   const endIndex = page * limit;
 
   try {
-    const database = await connect();
-    const productsCollection = database.collection('products');
-    const products = await productsCollection.find({}).toArray();
+    const products = await Product.find({});
     const numberOfPages = Math.ceil(products.length / limit);
     const response = {};
 
@@ -88,13 +85,8 @@ const getProducts = async (req, res, next) => {
 
 const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
-  const database = await connect();
-  const productsCollection = database.collection('products');
-  console.log(typeof productId, productId);
   try {
-    const product = await productsCollection.findOne({
-      _id: new ObjectId(`${productId}`),
-    });
+    const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -136,9 +128,6 @@ const createProduct = async (req, res, next) => {
   }
 
   try {
-    const database = await connect();
-    const productsCollection = database.collection('products');
-
     const newProduct = {
       name,
       price,
@@ -147,8 +136,10 @@ const createProduct = async (req, res, next) => {
       dateEntry: new Date(),
     };
 
-    const result = await productsCollection.insertOne(newProduct);
-    res.json(result);
+    const product_1 = new Product(newProduct);
+    console.log(product_1);
+    product_1.save();
+    return res.send({ message: 'Product Created' });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
@@ -185,19 +176,17 @@ const updateProduct = async (req, res, next) => {
   }
 
   try {
-    const database = await connect();
-    const productsCollection = database.collection('products');
-    const updatedProduct = await productsCollection.findOneAndUpdate(
-      { _id: new ObjectId(`${productId}`) },
-      { $set: { name, price, image, type } },
-      { returnOriginal: false }
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { name, price, image, type },
+      { new: true }
     );
 
-    if (!updatedProduct.value) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(updatedProduct.value);
+    res.json(updatedProduct);
   } catch (error) {
     console.error('Error updating product:', error);
     next(error);
@@ -223,19 +212,15 @@ const deleteProduct = async (req, res, next) => {
   const productId = req.params.productId;
 
   try {
-    const database = await connect();
-    const productsCollection = database.collection('products');
-    const product = await productsCollection.findOne({
-      _id: new ObjectId(`${productId}`),
-    });
+    const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    const result = await productsCollection.deleteOne({
-      _id: new ObjectId(`${productId}`),
-    });
-    res.json(result);
+
+    //Delete
+    const result = await Product.deleteOne({ _id: productId });
+    return res.send({ message: 'Product Deleted' });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
