@@ -14,7 +14,7 @@ module.exports = (app, nextMain) => {
    * @description Lista productos
    * @path {GET} /products
    **/
-  app.get('/products', /*requireAuth,*/ getProducts);
+  app.get('/products', requireAuth, getProducts);
 
   /**
    * @name GET /products/:productId

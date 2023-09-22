@@ -18,6 +18,6 @@ const productSchema = new mongoose.Schema({
   },
 });
 // Entity
-const Product = new mongoose.model('products', productSchema);
+const Product = new mongoose.model('product', productSchema);
 
 module.exports = { Product };

@@ -1,5 +1,9 @@
+const User = require('../models/UserModel');
+
 module.exports = {
-  getUsers: (req, resp, next) => {
+  getUsers: async (req, resp, next) => {
     // TODO: Implementa la función necesaria para traer la colección `users`
+    const user = await User.find();
+    resp.json(user);
   },
 };
