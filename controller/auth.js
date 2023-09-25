@@ -33,9 +33,11 @@ const handleAuthentication = async (req, resp, next) => {
       return next(401);
     }
 
-    const token = jwt.sign({ uid: user._id }, secret, { expiresIn: '1h' });
+    const accessToken = jwt.sign({ uid: user._id }, secret, {
+      expiresIn: '1h',
+    });
 
-    resp.json({ token });
+    resp.json({ accessToken });
   } catch (error) {
     next(error);
   }
