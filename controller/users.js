@@ -65,4 +65,39 @@ module.exports = {
       next(error);
     }
   },
+  /**
+   * @params {String} :uid `id` o `email` de la usuaria a consultar
+   * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a consultar
+   * @response {Object} user
+   * @response {String} user._id
+   * @response {Object} user.email
+   * @response {Object} user.roles
+   * @response {Boolean} user.roles.admin
+   * @code {200} si la autenticación es correcta
+   * @code {401} si no hay cabecera de autenticación
+   * @code {403} si no es ni admin o la misma usuaria
+   * @code {404} si la usuaria solicitada no existe
+   */
+  getUserById: async (req, resp, next) => {
+    const userData = req.params.uid;
+    const isEmail = userData.includes('@') ? true : false;
+    try {
+      const user = isEmail
+        ? await User.findOne({ email: userData })
+        : await User.findById(userData);
+      console.log(user);
+      if (!user) {
+        return resp.status(404).json({ error: 'User not found' });
+      }
+
+      resp.json({
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      });
+    } catch (error) {
+      console.error('Error getting users:', error);
+      next(error);
+    }
+  },
 };

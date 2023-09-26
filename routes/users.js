@@ -3,7 +3,7 @@ const { connect } = require('../connect.js');
 
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-const { getUsers } = require('../controller/users');
+const { getUsers, getUserById } = require('../controller/users');
 const { User } = require('../models/UserModel.js');
 
 async function initAdminUser(app, next) {
@@ -75,19 +75,8 @@ module.exports = (app, next) => {
    * @name GET /users/:uid
    * @description Obtiene información de una usuaria
    * @path {GET} /users/:uid
-   * @params {String} :uid `id` o `email` de la usuaria a consultar
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a consultar
-   * @response {Object} user
-   * @response {String} user._id
-   * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin o la misma usuaria
-   * @code {404} si la usuaria solicitada no existe
    */
-  app.get('/users/:uid', requireAuth, (req, resp) => {});
+  app.get('/users/:uid', requireAuth, getUserById);
 
   /**
    * @name POST /users
