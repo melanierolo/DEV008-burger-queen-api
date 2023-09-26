@@ -20,10 +20,19 @@ module.exports = {
    * @code {403} si no es ni admin
    */
   getUsers: async (req, resp, next) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
     // TODO: Implementa la función necesaria para traer la colección `users`
     try {
+      // Get the total number of users in the database
+      const totalUsers = await User.countDocuments();
+
       // Perform paginated query to retrieve users
-      const users = await User.find({});
+      const users = await User.find({}).skip(startIndex).limit(limit);
 
       let response = [];
       response = users.map((user) => ({
@@ -31,6 +40,24 @@ module.exports = {
         email: user.email,
         role: user.role,
       }));
+
+      /*Add pagination link headers*/
+      const totalPages = Math.ceil(totalUsers / limit);
+      const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+      const links = {};
+
+      if (endIndex < totalUsers) {
+        links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
+        links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+      }
+
+      if (startIndex > 0) {
+        links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
+        links.first = `${baseUrl}?page=1&limit=${limit}`;
+      }
+
+      // Set pagination link headers in the response
+      resp.setHeader('link', JSON.stringify(links));
 
       resp.json(response);
     } catch (error) {
