@@ -100,4 +100,78 @@ module.exports = {
       next(error);
     }
   },
+  /*-----------------createUser--------------------*/
+  /**
+   * @body {String} email Correo
+   * @body {String} password Contraseña
+   * @body {Object} [roles]
+   * @body {Boolean} [roles.admin]
+   * @response {Object} user
+   * @response {String} user._id
+   * @response {Object} user.email
+   * @response {Object} user.roles
+   * @response {Boolean} user.roles.admin
+   * @code {200} si la autenticación es correcta
+   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
+   * @code {401} si no hay cabecera de autenticación
+   * @code {403} si ya existe usuaria con ese `email`
+   */
+  createUser: (req, res, next) => {
+    const { email, password } = req.body;
+    let { role } = req.body;
+    console.log(role);
+    role = role.assignedRole;
+    // Check if email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
+
+    // Validate email format using regex
+    const emailRegex =
+      /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // Validate password using regex
+    const passwordRegex =
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        error:
+          'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.',
+      });
+    }
+
+    // Check if a user with the same email already exists
+    const checkExistingUser = (email) => {
+      return User.exists({ email: email });
+    };
+
+    // Check if user with the same email already exists
+    checkExistingUser(email)
+      .then((userExists) => {
+        if (userExists) {
+          return res
+            .status(403)
+            .json({ error: 'User with the same email already exists' });
+        }
+
+        // User model-  Mongoose
+        User.create({
+          email,
+          password,
+          role,
+        })
+          .then((savedUser) => {
+            res.status(200).json(savedUser);
+          })
+          .catch((error) => {
+            res.status(500).json({ error: error.message });
+          });
+      })
+      .catch((error) => {
+        res.status(500).json({ error: 'Error checking existing user' });
+      });
+  },
 };

@@ -3,7 +3,7 @@ const { connect } = require('../connect.js');
 
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-const { getUsers, getUserById } = require('../controller/users');
+const { getUsers, getUserById, createUser } = require('../controller/users');
 const { User } = require('../models/UserModel.js');
 
 async function initAdminUser(app, next) {
@@ -97,10 +97,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', requireAdmin, (req, resp, next) => {
-    // TODO: implementar la ruta para agregar
-    // nuevos usuarios
-  });
+  app.post('/users', requireAdmin, createUser);
 
   /**
    * @name PUT /users
