@@ -109,18 +109,14 @@ module.exports = {
    * @response {Object} user
    * @response {String} user._id
    * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
+   * @response {String} user.role
    * @code {200} si la autenticación es correcta
    * @code {400} si no se proveen `email` o `password` o ninguno de los dos
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
   createUser: (req, res, next) => {
-    const { email, password } = req.body;
-    let { role } = req.body;
-    console.log(role);
-    role = role.assignedRole;
+    const { email, password, role } = req.body;
     // Check if email and password are provided
     if (!email || !password) {
       return res.status(400).json({ error: 'Missing email or password' });
@@ -164,7 +160,12 @@ module.exports = {
           role,
         })
           .then((savedUser) => {
-            res.status(200).json(savedUser);
+            console.log('user-create', savedUser);
+            res.status(200).json({
+              id: savedUser._id,
+              email: savedUser.email,
+              role: savedUser.role,
+            });
           })
           .catch((error) => {
             res.status(500).json({ error: error.message });
@@ -173,5 +174,54 @@ module.exports = {
       .catch((error) => {
         res.status(500).json({ error: 'Error checking existing user' });
       });
+  },
+  /*----------------------DELETE----------------------------*/
+  /**
+    @response {Object} user
+   * @response {String} user._id
+   * @response {Object} user.email
+   * @response {String} user.role
+   * @code {200} si la autenticación es correcta
+   * @code {401} si no hay cabecera de autenticación
+   * @code {403} si no es ni admin o la misma usuaria
+   * @code {404} si la usuaria solicitada no existe
+   */
+  deleteUser: (req, resp, next) => {
+    const userData = req.params.uid;
+    const isEmail = userData.includes('@') ? true : false;
+    const query = isEmail ? { email: userData } : { _id: userData };
+
+    //Delete
+    User.deleteOne(query)
+      .then(async (user) => {
+        console.log(user, 'user');
+        if (user.deletedCount === 0) {
+          return resp.status(404).json({ error: 'User not found' });
+        }
+        return resp.json({ message: 'User Deleted' });
+      })
+      .catch((error) => {
+        console.error('Error getting user:', error);
+        next(error);
+      });
+    /*const userData = req.params.uid;
+    const isEmail = userData.includes('@') ? true : false;
+    console.log(req.params);
+    const query = isEmail ? { email: userData } : { _id: userData };
+    console.log('query', req.params);
+    User.findOne(query)
+      .then(async (user) => {
+        console.log('user', user);
+        if (!user) {
+          return resp.status(404).json({ error: 'User not found' });
+        }
+        //Delete
+        const result = await User.deleteOne({ query });
+        return resp.json({ message: 'User Deleted' });
+      })
+      .catch((error) => {
+        console.error('Error getting user:', error);
+        next(error);
+      });*/
   },
 };
