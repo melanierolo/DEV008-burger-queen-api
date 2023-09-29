@@ -204,24 +204,97 @@ module.exports = {
         console.error('Error getting user:', error);
         next(error);
       });
-    /*const userData = req.params.uid;
+  },
+  /*-------------------------- UPDATE --------------------------*/
+  /**
+   * @body {String} email Correo
+   * @body {String} password Contraseña
+   * @body {Object} [roles]
+   * @body {Boolean} [roles.admin]
+   * @response {Object} user
+   * @response {String} user._id
+   * @response {String} user.email
+   * @response {String} user.role
+   * @code {200} si la autenticación es correcta
+   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
+   * @code {401} si no hay cabecera de autenticación
+   * @code {403} si no es ni admin o la misma usuaria
+   * @code {403} una usuaria no admin intenta de modificar sus `roles`
+   * @code {404} si la usuaria solicitada no existe
+   */
+  updateUser: (req, resp, next) => {
+    const userData = req.params.uid;
     const isEmail = userData.includes('@') ? true : false;
-    console.log(req.params);
     const query = isEmail ? { email: userData } : { _id: userData };
-    console.log('query', req.params);
-    User.findOne(query)
-      .then(async (user) => {
-        console.log('user', user);
-        if (!user) {
-          return resp.status(404).json({ error: 'User not found' });
+    //New Data
+    const newData = req.body;
+    /*
+    1. validar cada propiedad (si no, lanzar excepción)
+    2. consulto la colección actual
+    3. modifico algunas propiedades de la colección actual
+        (si no me envían alguna propiedad no la sobreescribo)
+    4. guardo la colección completa
+    */
+    // ------Validate each property
+    for (const fieldName in newData) {
+      const fieldValue = newData[fieldName];
+      console.log(`Field: ${fieldName}, Value: ${fieldValue}`);
+      console.log(fieldName, typeof fieldName);
+
+      function invalidFieldError(message) {
+        return resp.status(400).json({ error: message });
+      }
+
+      if (typeof fieldValue !== 'string') {
+        return invalidFieldError('The value is invalid');
+      }
+
+      switch (fieldName) {
+        case 'email':
+          const emailRegex =
+            /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+          if (!emailRegex.test(fieldValue)) {
+            return invalidFieldError('Invalid email address');
+          }
+          break;
+
+        case 'password':
+          const passwordRegex =
+            /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
+          if (!passwordRegex.test(fieldValue)) {
+            return invalidFieldError(
+              'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.'
+            );
+          }
+          break;
+
+        case 'role':
+          const validRoles = ['admin', 'chef', 'waiter'];
+          if (!validRoles.includes(fieldValue)) {
+            return invalidFieldError('Invalid role');
+          }
+          break;
+
+        default:
+          return invalidFieldError('The field does not exist.');
+      }
+    }
+
+    // ------Query the current collection and update the document
+    User.findOneAndUpdate(query, newData, { new: true })
+      .then((updateUser) => {
+        if (!updateUser) {
+          return resp.status(404).json({ message: 'User not found' });
         }
-        //Delete
-        const result = await User.deleteOne({ query });
-        return resp.json({ message: 'User Deleted' });
+        resp.status(200).json({
+          email: updateUser.email,
+          password: updateUser.password,
+          role: updateUser.role,
+        });
       })
       .catch((error) => {
-        console.error('Error getting user:', error);
+        console.error('Error updating product:', error);
         next(error);
-      });*/
+      });
   },
 };

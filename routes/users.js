@@ -8,6 +8,7 @@ const {
   getUserById,
   createUser,
   deleteUser,
+  updateUser,
 } = require('../controller/users');
 const { User } = require('../models/UserModel.js');
 
@@ -108,25 +109,10 @@ module.exports = (app, next) => {
    * @name PUT /users
    * @description Modifica una usuaria
    * @params {String} :uid `id` o `email` de la usuaria a modificar
-   * @path {PUT} /users
-   * @body {String} email Correo
-   * @body {String} password Contraseña
-   * @body {Object} [roles]
-   * @body {Boolean} [roles.admin]
+   * @path {PATCH} /users
    * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a modificar
-   * @response {Object} user
-   * @response {String} user._id
-   * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin o la misma usuaria
-   * @code {403} una usuaria no admin intenta de modificar sus `roles`
-   * @code {404} si la usuaria solicitada no existe
    */
-  app.put('/users/:uid', requireAuth, (req, resp, next) => {});
+  app.patch('/users/:uid', requireAuth, updateUser);
 
   /**
    * @name DELETE /users
