@@ -106,7 +106,7 @@ module.exports = (app, next) => {
   app.post('/users', requireAdmin, createUser);
 
   /**
-   * @name PUT /users
+   * @name PATCH /users
    * @description Modifica una usuaria
    * @params {String} :uid `id` o `email` de la usuaria a modificar
    * @path {PATCH} /users
