@@ -145,7 +145,7 @@ module.exports = {
     // Check if user with the same email already exists
     checkExistingUser(email)
       .then((userExists) => {
-        console.log(userExists);
+        console.log('checkExistingUser-createUser', userExists);
         if (userExists) {
           return res.status(403).json({
             message: 'User with the same email already exists.',

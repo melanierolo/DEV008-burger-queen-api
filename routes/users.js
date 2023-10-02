@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const { connect } = require('../connect.js');
 
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
@@ -10,7 +9,7 @@ const {
   deleteUser,
   updateUser,
 } = require('../controller/users');
-const { User } = require('../models/UserModel.js');
+const { User } = require('../models/UserModel');
 
 async function initAdminUser(app, next) {
   // Modified function signature to include 'app'

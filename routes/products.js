@@ -14,21 +14,23 @@ module.exports = (app, nextMain) => {
    * @description Lista productos
    * @path {GET} /products
    **/
-  app.get('/products', /*requireAuth,*/ getProducts);
+
+  app.get('/products', requireAuth, getProducts);
 
   /**
    * @name GET /products/:productId
    * @description Obtiene los datos de un producto especifico
    * @path {GET} /products/:productId
    */
-  app.get('/products/:productId', /*requireAuth,*/ getProductById);
+
+  app.get('/products/:productId', requireAuth, getProductById);
 
   /**
    * @name POST /products
    * @description Crea un nuevo producto
    * @path {POST} /products
    */
-  app.post('/products', /*requireAdmin,*/ createProduct);
+  app.post('/products', requireAdmin, createProduct);
 
   /**
    * @name PUT /products
@@ -37,7 +39,7 @@ module.exports = (app, nextMain) => {
    * @params {String} :productId `id` del producto
    * @auth Requiere `token` de autenticación y que el usuario sea **admin**
    */
-  app.put('/products/:productId', /*requireAdmin,*/ updateProduct);
+  app.put('/products/:productId', requireAdmin, updateProduct);
 
   /**
    * @name DELETE /products
@@ -46,7 +48,7 @@ module.exports = (app, nextMain) => {
    * @params {String} :productId `id` del producto
    * @auth Requiere `token` de autenticación y que el usuario sea **admin**
    */
-  app.delete('/products/:productId', /*requireAdmin,*/ deleteProduct);
+  app.delete('/products/:productId', requireAdmin, deleteProduct);
 
   nextMain();
 };
