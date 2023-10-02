@@ -138,7 +138,6 @@ module.exports = {
           'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.',
       });
     }
-    console.log('createUser:', email);
     // Check if a user with the same email already exists
     const checkExistingUser = (email) => {
       return User.exists({ email: email });

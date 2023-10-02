@@ -83,7 +83,9 @@ const createTestUser = () =>
       }
       return resp.json();
     })
-    .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
+    .then(({ accessToken }) =>
+      Object.assign(__e2e, { testUserToken: accessToken })
+    );
 
 const checkAdminCredentials = () =>
   fetch('/auth', {
