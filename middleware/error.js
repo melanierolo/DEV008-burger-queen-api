@@ -10,7 +10,6 @@ const isKnownHTTPErrorStatus = (num) =>
   typeof num === 'number' && Object.keys(httpErrors).indexOf(`${num}`) >= 0;
 
 module.exports = (err, req, resp, next) => {
-  console.log(err);
   const statusCode = isKnownHTTPErrorStatus(err.statusCode)
     ? err.statusCode
     : 500;

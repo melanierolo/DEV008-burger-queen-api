@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const { connect } = require('../connect.js');
 
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
@@ -10,7 +9,7 @@ const {
   deleteUser,
   updateUser,
 } = require('../controller/users');
-const { User } = require('../models/UserModel.js');
+const { User } = require('../models/UserModel');
 
 async function initAdminUser(app, next) {
   // Modified function signature to include 'app'
@@ -29,10 +28,10 @@ async function initAdminUser(app, next) {
   // si no existe, hay que guardarlo
   try {
     const existingUser = await User.findOne({ email: adminUser.email });
-    console.log('----adminUser', existingUser);
+    //console.log('----adminUser', existingUser);
     if (!existingUser) {
       await User.create(adminUser);
-      console.log('Admin user created');
+      //console.log('Admin user created');
     }
     next();
   } catch (error) {

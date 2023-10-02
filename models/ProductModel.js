@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
-const productSchema = new mongoose.Schema({
+const productSchema = Schema({
   name: {
     type: String,
     required: true,
@@ -18,6 +18,8 @@ const productSchema = new mongoose.Schema({
   },
 });
 // Entity
-const Product = new mongoose.model('product', productSchema);
+// The first argument passed to the model should be the singular form of your collection name.
+// Mongoose automatically changes this to the plural form, transforms it to lowercase
+const Product = new mongoose.model('Product', productSchema);
 
 module.exports = { Product };

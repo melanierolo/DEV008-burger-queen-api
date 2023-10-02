@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
-const { User } = require('../models/UserModel.js');
 const bcrypt = require('bcrypt');
+const config = require('../config');
+const { User } = require('../models/UserModel');
 
 const { secret } = config;
 
@@ -17,9 +17,11 @@ const { secret } = config;
 
 const handleAuthentication = async (req, resp, next) => {
   const { email, password } = req.body;
-  console.log(email, password);
   if (!email || !password) {
-    return next(400);
+    return next({
+      statusCode: 400,
+      message: 'Email or password cannot be empty',
+    });
   }
 
   // TODO: autenticar a la usuarix
@@ -30,7 +32,10 @@ const handleAuthentication = async (req, resp, next) => {
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return next(401);
+      return next({
+        statusCode: 401,
+        message: 'Wrong password or email',
+      });
     }
 
     const accessToken = jwt.sign({ uid: user._id }, secret, {
@@ -39,7 +44,7 @@ const handleAuthentication = async (req, resp, next) => {
 
     resp.json({ accessToken });
   } catch (error) {
-    next(error);
+    next({ statusCode: error.status });
   }
 };
 

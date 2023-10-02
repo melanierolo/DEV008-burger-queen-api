@@ -9,7 +9,6 @@ async function connect() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('--- Connected to the database');
     return mongoose.connection;
   } catch (error) {
     console.error('Error connecting to the database', error);
@@ -20,7 +19,6 @@ async function connect() {
 async function disconnect() {
   try {
     await mongoose.disconnect();
-    console.log('Disconnected from the database');
   } catch (error) {
     console.error('Error disconnecting from the database', error);
   }

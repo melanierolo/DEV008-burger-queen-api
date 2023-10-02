@@ -1,6 +1,6 @@
-const { Product } = require('../models/ProductModel.js');
+const { Product } = require('../models/ProductModel');
 
-/*---------------------- Function to get a list of products ----------------------*/
+// ---------------------- Function to get a list of products ----------------------
 /**
  * @query {String} [page=1] Página del listado a consultar
  * @query {String} [limit=10] Cantitad de elementos por página
@@ -21,8 +21,8 @@ const { Product } = require('../models/ProductModel.js');
  * @code {401} si no hay cabecera de autenticación
  */
 const getProducts = async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
 
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
@@ -137,7 +137,7 @@ const createProduct = async (req, res, next) => {
     };
 
     const product_1 = new Product(newProduct);
-    console.log(product_1);
+    //console.log(product_1);
     product_1.save();
     return res.send({ message: 'Product Created' });
   } catch (error) {
@@ -220,7 +220,13 @@ const deleteProduct = async (req, res, next) => {
 
     //Delete
     const result = await Product.deleteOne({ _id: productId });
-    return res.send({ message: 'Product Deleted' });
+    return res.send({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: product.type,
+    });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
