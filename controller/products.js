@@ -137,7 +137,7 @@ const createProduct = async (req, res, next) => {
     };
 
     const product_1 = new Product(newProduct);
-    console.log(product_1);
+    //console.log(product_1);
     product_1.save();
     return res.send({ message: 'Product Created' });
   } catch (error) {

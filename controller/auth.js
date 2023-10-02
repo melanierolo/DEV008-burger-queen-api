@@ -17,7 +17,7 @@ const { secret } = config;
 
 const handleAuthentication = async (req, resp, next) => {
   const { email, password } = req.body;
-  console.log(email, password);
+  //console.log(email, password);
   if (!email || !password) {
     return next({
       statusCode: 400,

@@ -85,7 +85,7 @@ module.exports = {
       const user = isEmail
         ? await User.findOne({ email: userData })
         : await User.findById(userData);
-      console.log(user);
+      //console.log(user);
       if (!user) {
         return next({ statusCode: 404, message: 'User not found' });
       }
@@ -160,7 +160,7 @@ module.exports = {
           role,
         })
           .then((savedUser) => {
-            console.log('user-create', savedUser);
+            //console.log('user-create', savedUser);
             res.status(200).json({
               id: savedUser._id,
               email: savedUser.email,
@@ -197,7 +197,7 @@ module.exports = {
     //Delete
     User.deleteOne(query)
       .then(async (user) => {
-        console.log(user, 'user');
+        //console.log(user, 'user');
         if (user.deletedCount === 0) {
           return next({
             statusCode: 404,
@@ -246,8 +246,8 @@ module.exports = {
     // ------Validate each property
     for (const fieldName in newData) {
       const fieldValue = newData[fieldName];
-      console.log(`Field: ${fieldName}, Value: ${fieldValue}`);
-      console.log(fieldName, typeof fieldName);
+      //console.log(`Field: ${fieldName}, Value: ${fieldValue}`);
+      //console.log(fieldName, typeof fieldName);
 
       function invalidFieldError(message) {
         return next({
