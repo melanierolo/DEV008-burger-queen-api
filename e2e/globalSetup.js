@@ -65,6 +65,7 @@ const createTestUser = () =>
     body: __e2e.testUserCredentials,
   })
     .then((resp) => {
+      console.log('test-createUser', resp.status);
       if (resp.status !== 200) {
         throw new Error(
           `Error: Could not create test user - response ${resp.status}`
@@ -102,7 +103,7 @@ const checkAdminCredentials = () =>
       return resp.json();
     })
     .then((res) => {
-      Object.assign(__e2e, { testUserToken: res.accessToken });
+      Object.assign(__e2e, { adminToken: res.accessToken });
     });
 
 const waitForServerToBeReady = (retries = 10) =>
