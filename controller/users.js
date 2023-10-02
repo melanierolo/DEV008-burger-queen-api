@@ -87,7 +87,7 @@ module.exports = {
         : await User.findById(userData);
       console.log(user);
       if (!user) {
-        return resp.status(404).json({ error: 'User not found' });
+        return next({ statusCode: 404, message: 'User not found' });
       }
 
       resp.json({
@@ -96,8 +96,7 @@ module.exports = {
         role: user.role,
       });
     } catch (error) {
-      console.error('Error getting users:', error);
-      next(error);
+      next({ statusCode: error.status, message: error.message });
     }
   },
   /*-----------------createUser--------------------*/
@@ -119,22 +118,23 @@ module.exports = {
     const { email, password, role } = req.body;
     // Check if email and password are provided
     if (!email || !password) {
-      return res.status(400).json({ error: 'Missing email or password' });
+      return next({ statusCode: 400, message: 'Missing email or password' });
     }
 
     // Validate email format using regex
     const emailRegex =
       /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Invalid email address' });
+      return next({ statusCode: 400, message: 'Invalid email address' });
     }
 
     // Validate password using regex
     const passwordRegex =
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        error:
+      return next({
+        statusCode: 400,
+        message:
           'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.',
       });
     }
@@ -148,9 +148,9 @@ module.exports = {
     checkExistingUser(email)
       .then((userExists) => {
         if (userExists) {
-          return res
-            .status(403)
-            .json({ error: 'User with the same email already exists' });
+          return res.status(403).json({
+            message: 'User with the same email already exists.',
+          });
         }
 
         // User model-  Mongoose
@@ -168,11 +168,14 @@ module.exports = {
             });
           })
           .catch((error) => {
-            res.status(500).json({ error: error.message });
+            return next({ statusCode: 500 });
           });
       })
       .catch((error) => {
-        res.status(500).json({ error: 'Error checking existing user' });
+        return next({
+          statusCode: 500,
+          message: 'Error checking existing user',
+        });
       });
   },
   /*----------------------DELETE----------------------------*/
@@ -196,13 +199,18 @@ module.exports = {
       .then(async (user) => {
         console.log(user, 'user');
         if (user.deletedCount === 0) {
-          return resp.status(404).json({ error: 'User not found' });
+          return next({
+            statusCode: 404,
+            message: 'User not found',
+          });
         }
         return resp.json({ message: 'User Deleted' });
       })
       .catch((error) => {
-        console.error('Error getting user:', error);
-        next(error);
+        return next({
+          statusCode: 500,
+          message: 'Error getting user',
+        });
       });
   },
   /*-------------------------- UPDATE --------------------------*/
@@ -242,7 +250,10 @@ module.exports = {
       console.log(fieldName, typeof fieldName);
 
       function invalidFieldError(message) {
-        return resp.status(400).json({ error: message });
+        return next({
+          statusCode: 400,
+          message: message,
+        });
       }
 
       if (typeof fieldValue !== 'string') {
@@ -284,7 +295,10 @@ module.exports = {
     User.findOneAndUpdate(query, newData, { new: true })
       .then((updateUser) => {
         if (!updateUser) {
-          return resp.status(404).json({ message: 'User not found' });
+          return next({
+            statusCode: 404,
+            message: 'User not found',
+          });
         }
         resp.status(200).json({
           email: updateUser.email,
@@ -293,8 +307,10 @@ module.exports = {
         });
       })
       .catch((error) => {
-        console.error('Error updating product:', error);
-        next(error);
+        return next({
+          statusCode: 500,
+          message: `Error updating product: ${error.message}`,
+        });
       });
   },
 };
