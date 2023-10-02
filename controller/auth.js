@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
-const { User } = require('../models/UserModel.js');
 const bcrypt = require('bcrypt');
+const config = require('../config');
+const { User } = require('../models/UserModel');
 
 const { secret } = config;
 
@@ -17,7 +17,6 @@ const { secret } = config;
 
 const handleAuthentication = async (req, resp, next) => {
   const { email, password } = req.body;
-  //console.log(email, password);
   if (!email || !password) {
     return next({
       statusCode: 400,
