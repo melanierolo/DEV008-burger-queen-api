@@ -1,4 +1,5 @@
 const { User } = require('../models/UserModel');
+const bcrypt = require('bcrypt');
 
 module.exports = {
   /**
@@ -115,7 +116,8 @@ module.exports = {
    * @code {403} si ya existe usuaria con ese `email`
    */
   createUser: (req, res, next) => {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
+    let { role } = req.body;
     // Check if email and password are provided
     if (!email || !password) {
       return next({ statusCode: 400, message: 'Missing email or password' });
@@ -138,6 +140,11 @@ module.exports = {
           'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.',
       });
     }
+    // Check role
+    if (role !== 'admin' && role !== 'waiter' && role !== 'chef') {
+      role = 'waiter';
+    }
+    // console.log(role);
     // Check if a user with the same email already exists
     const checkExistingUser = (email) => {
       return User.exists({ email: email });
@@ -151,13 +158,14 @@ module.exports = {
             message: 'User with the same email already exists.',
           });
         }
+        const newUser = {
+          email: email,
+          password: bcrypt.hashSync(password, 10),
+          role: role,
+        };
 
         // User model-  Mongoose
-        User.create({
-          email,
-          password,
-          role,
-        })
+        User.create(newUser)
           .then((savedUser) => {
             //console.log('user-create', savedUser);
             res.status(200).json({

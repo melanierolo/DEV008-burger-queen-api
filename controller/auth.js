@@ -44,6 +44,7 @@ const handleAuthentication = async (req, resp, next) => {
 
     resp.json({ accessToken });
   } catch (error) {
+    // console.error(error.status, error.message);
     next({ statusCode: error.status });
   }
 };
