@@ -204,8 +204,8 @@ describe('PATCH /users/:uid', () => {
     ));
 
   it('should fail with 400 when no props to update', () =>
-    fetchAsTestUser('/users/test@test.test', { method: 'PATCH' }).then((resp) =>
-      expect(resp.status).toBe(400)
+    fetchAsTestUser('/users/user0210@example.com', { method: 'PATCH' }).then(
+      (resp) => expect(resp.status).toBe(400)
     ));
 
   it('should fail with 403 when not admin tries to change own roles', () =>

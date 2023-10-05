@@ -250,6 +250,10 @@ module.exports = {
         (si no me envían alguna propiedad no la sobreescribo)
     4. guardo la colección completa
     */
+    // there are no values in the req.body"
+    if (Object.values(newData).length === 0) {
+      return next({ statusCode: 400 });
+    }
     // ------Validate each property
     for (const fieldName in newData) {
       const fieldValue = newData[fieldName];
