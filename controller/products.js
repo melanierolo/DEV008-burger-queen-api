@@ -121,10 +121,18 @@ const getProductById = async (req, res, next) => {
  **/
 
 const createProduct = async (req, res, next) => {
-  const { name, price, image, type } = req.body;
+  const { name, price } = req.body;
+  let { image, type } = req.body;
 
   if (!name || !price) {
     return res.status(400).json({ error: 'Name and price are required' });
+  }
+
+  if (!image || typeof image !== 'string') {
+    image = '';
+  }
+  if (!type || typeof type !== 'string') {
+    type = '';
   }
 
   try {
@@ -137,9 +145,15 @@ const createProduct = async (req, res, next) => {
     };
 
     const product_1 = new Product(newProduct);
-    //console.log(product_1);
     product_1.save();
-    return res.send({ message: 'Product Created' });
+    
+    return res.send({
+      name: newProduct.name,
+      price: newProduct.price,
+      image: newProduct.image,
+      type: newProduct.type,
+      dateEntry: newProduct.dateEntry,
+    });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
@@ -210,7 +224,6 @@ const updateProduct = async (req, res, next) => {
 
 const deleteProduct = async (req, res, next) => {
   const productId = req.params.productId;
-
   try {
     const product = await Product.findById(productId);
 
