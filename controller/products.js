@@ -20,7 +20,7 @@ const { Product } = require('../models/ProductModel');
  * @code {200} si la autenticación es correcta
  * @code {401} si no hay cabecera de autenticación
  */
-const getProducts = async (req, res, next) => {
+const getProducts = async (req, resp, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
@@ -61,7 +61,7 @@ const getProducts = async (req, res, next) => {
       type: product.type,
       dateEntry: product.dateEntry,
     }));
-    res.json(response); // Send the list of products as a JSON response
+    resp.json(response); // Send the list of products as a JSON response
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
@@ -94,8 +94,8 @@ const getProductById = async (req, res, next) => {
 
     res.json(product);
   } catch (error) {
-    console.error('Error getting products:', error);
-    next(error); // Pass the error to the error handling middleware
+    // console.error('Error getting products:', error.message);
+    next({ statusCode: 500 }); // Pass the error to the error handling middleware
   }
 };
 
@@ -145,15 +145,23 @@ const createProduct = async (req, res, next) => {
     };
 
     const product_1 = new Product(newProduct);
-    product_1.save();
-    
-    return res.send({
-      name: newProduct.name,
-      price: newProduct.price,
-      image: newProduct.image,
-      type: newProduct.type,
-      dateEntry: newProduct.dateEntry,
-    });
+    let product1Id = '';
+    product_1
+      .save()
+      .then((result) => {
+        product1Id = result._id.toString();
+        return res.send({
+          _id: product1Id,
+          name: result.name,
+          price: result.price,
+          image: result.image,
+          type: result.type,
+          dateEntry: result.dateEntry,
+        });
+      })
+      .catch((error) => {
+        return next({ statusCode: 500 });
+      });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
