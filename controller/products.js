@@ -1,4 +1,5 @@
 const { Product } = require('../models/ProductModel');
+const { Types } = require('mongoose');
 
 // ---------------------- Function to get a list of products ----------------------
 /**
@@ -230,27 +231,31 @@ const updateProduct = async (req, res, next) => {
    * @code {404} si el producto con `productId` indicado no existe
 **/
 
-const deleteProduct = async (req, res, next) => {
+const deleteProduct = async (req, resp, next) => {
   const productId = req.params.productId;
-  try {
-    const product = await Product.findById(productId);
 
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+  try {
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
     }
 
-    //Delete
-    const result = await Product.deleteOne({ _id: productId });
-    return res.send({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      type: product.type,
-    });
+    const productFound = await Product.findById(productId);
+
+    if (!productFound) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
+    const result = await Product.findByIdAndDelete(productId);
+
+    if (result.deletedCount === 0) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
+    const { _id, name, price, image, type, dateEntry } = result;
+
+    resp.json({ _id, name, price, image, type, dateEntry });
   } catch (error) {
-    console.error('Error getting products:', error);
-    next(error); // Pass the error to the error handling middleware
+    return next({ statusCode: 500 });
   }
 };
 
