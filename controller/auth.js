@@ -30,10 +30,10 @@ const handleAuthentication = async (req, resp, next) => {
   // Si coinciden, manda un access token creado con jwt
   try {
     const user = await User.findOne({ email });
-
+    console.log(email, password);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next({
-        statusCode: 401,
+        statusCode: 404,
         message: 'Wrong password or email',
       });
     }
@@ -44,6 +44,7 @@ const handleAuthentication = async (req, resp, next) => {
 
     resp.json({ accessToken });
   } catch (error) {
+    console.error(error.status, error.message);
     next({ statusCode: error.status });
   }
 };

@@ -21,6 +21,7 @@ const __e2e = {
   testUserCredentials: {
     email: 'test@test.test',
     password: '123456ABCd+',
+    role: 'admin',
   },
   testUserToken: null,
   childProcessPid: null,
@@ -84,9 +85,7 @@ const createTestUser = () =>
       }
       return resp.json();
     })
-    .then(({ accessToken }) =>
-      Object.assign(__e2e, { testUserToken: accessToken })
-    );
+    .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
 
 const checkAdminCredentials = () =>
   fetch('/auth', {

@@ -15,13 +15,13 @@ module.exports = (secret) => (req, resp, next) => {
 
   jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
-      return next(403);
+      return next({ statusCode: 403 });
     }
 
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
     req.userId = decodedToken.uid; // Add user ID to request object
     const userFound = await User.findById(req.userId);
-    if (!userFound) return next(404).json({ message: 'No user found' });
+    if (!userFound) return next({ statusCode: 404, message: 'No found' });
     req.user = {
       email: userFound.email,
       role: userFound.role,
@@ -49,12 +49,12 @@ module.exports.isAdmin = (req) => {
   return isAdminUser;
 };
 module.exports.requireAuth = (req, resp, next) =>
-  !module.exports.isAuthenticated(req) ? next(401) : next();
+  !module.exports.isAuthenticated(req) ? next({ statusCode: 401 }) : next();
 
 module.exports.requireAdmin = (req, resp, next) =>
   // eslint-disable-next-line no-nested-ternary
   !module.exports.isAuthenticated(req)
-    ? next(401)
+    ? next({ statusCode: 401 })
     : !module.exports.isAdmin(req)
     ? next(403)
     : next();
