@@ -37,17 +37,9 @@ describe('POST /auth', () => {
       })
       .then((response) => {
         const { accessToken } = response;
-        console.log(
-          response,
-          'should create new auth token and allow access using it'
-        );
         return fetchWithAuth(accessToken)(`/users/${config.adminEmail}`);
       })
       .then((resp) => {
-        console.log(
-          'should create new auth token and allow access using it',
-          resp
-        );
         expect(resp.status).toBe(200);
         return resp.json();
       })
