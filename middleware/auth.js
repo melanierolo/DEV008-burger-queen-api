@@ -15,6 +15,7 @@ module.exports = (secret) => (req, resp, next) => {
 
   jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
+      // console.log(err.message, err.status);
       return next({ statusCode: 403 });
     }
 

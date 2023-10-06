@@ -4,5 +4,5 @@ exports.dbUrl =
   process.env.DB_URL ||
   'mongodb://127.0.0.1:27017/DB_burguer-queen';
 exports.secret = process.env.JWT_SECRET || 'esta-es-la-api-burger-queen';
-exports.adminEmail = process.env.ADMIN_EMAIL || 'admin@localhost';
+exports.adminEmail = process.env.ADMIN_EMAIL || 'admin@localhost.com';
 exports.adminPassword = process.env.ADMIN_PASSWORD || 'changeme';
