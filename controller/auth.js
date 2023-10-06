@@ -31,6 +31,7 @@ const handleAuthentication = async (req, resp, next) => {
   try {
     const user = await User.findOne({ email });
     console.log(email, password);
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next({
         statusCode: 404,
