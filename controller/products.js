@@ -87,15 +87,26 @@ const getProducts = async (req, resp, next) => {
 const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
   try {
+    // Validation of productId
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
+    }
+
     const product = await Product.findById(productId);
-    console.log(product);
+
     if (!product) {
       return next({ statusCode: 404, message: 'Product not found' });
     }
 
-    res.json(product);
+    res.json({
+      id: product._id,
+      name: product.name,
+      price: product.image,
+      type: product.type,
+      product: product.dateEntry,
+    });
   } catch (error) {
-    // console.error('Error getting products:', error.message);
+    console.error('Error getting products:', error.message, error.status);
     next({ statusCode: 500 }); // Pass the error to the error handling middleware
   }
 };
