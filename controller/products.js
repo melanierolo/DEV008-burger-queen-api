@@ -88,9 +88,9 @@ const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
   try {
     const product = await Product.findById(productId);
-
+    console.log(product);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return next({ statusCode: 404, message: 'Product not found' });
     }
 
     res.json(product);
@@ -192,22 +192,61 @@ const updateProduct = async (req, res, next) => {
   const productId = req.params.productId;
   const { name, price, image, type } = req.body;
 
-  if (!name && !price && !image && !type) {
-    return res
-      .status(400)
-      .json({ message: 'Ninguna propiedad a modificar fue indicada' });
+  // Check if req.body is empty
+  if (Object.values(req.body).length === 0) {
+    return next({ statusCode: 400 });
+  }
+
+  // Validation of name
+  if (name !== undefined && name !== null) {
+    if (typeof name !== 'string' || name.trim() === '') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of price
+  if (price !== undefined && price !== null) {
+    if (
+      typeof price !== 'number' ||
+      isNaN(price) ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of image
+  if (image !== undefined && image !== null) {
+    if (typeof image !== 'string') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of type
+  if (type !== undefined && type !== null) {
+    if (typeof type !== 'string') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
   }
 
   try {
+    // Validation of productId
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       { name, price, image, type },
       { new: true }
     );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
 
     res.json(updatedProduct);
   } catch (error) {
