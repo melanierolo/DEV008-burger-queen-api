@@ -30,7 +30,7 @@ const getProducts = async (req, resp, next) => {
 
   try {
     // Get the total number of products in the database
-    const totalProducts = await Product.countDocuments();
+    const totalProducts = await Product.estimatedDocumentCount();
 
     // Perform paginated query to retrieve products
     const products = await Product.find({}).skip(startIndex).limit(limit);

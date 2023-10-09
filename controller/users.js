@@ -30,7 +30,7 @@ module.exports = {
     // TODO: Implementa la función necesaria para traer la colección `users`
     try {
       // Get the total number of users in the database
-      const totalUsers = await User.countDocuments();
+      const totalUsers = await User.estimatedDocumentCount();
 
       // Perform paginated query to retrieve users
       const users = await User.find({}).skip(startIndex).limit(limit);
