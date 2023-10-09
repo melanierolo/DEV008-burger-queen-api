@@ -29,32 +29,14 @@ const getProducts = async (req, resp, next) => {
   const endIndex = page * limit;
 
   try {
-    const products = await Product.find({});
-    const numberOfPages = Math.ceil(products.length / limit);
-    const response = {};
+    // Get the total number of products in the database
+    const totalProducts = await Product.countDocuments();
 
-    response.pagination = {
-      page: page,
-      pageSize: limit,
-      numberOfPages: numberOfPages,
-    };
+    // Perform paginated query to retrieve products
+    const products = await Product.find({}).skip(startIndex).limit(limit);
+    let response = [];
 
-    if (startIndex > 0) {
-      response.link = {
-        first: `/products?page=1&limit=${limit}`,
-        prev: `/products?page=${page - 1}&limit=${limit}`,
-      };
-    }
-
-    if (endIndex < products.length) {
-      response.link = {
-        ...response.link,
-        next: `/products?page=${page + 1}&limit=${limit}`,
-        last: `/products?page=${numberOfPages}&limit=${limit}`,
-      };
-    }
-
-    response.result = products.slice(startIndex, endIndex).map((product) => ({
+    response = products.map((product) => ({
       id: product._id,
       name: product.name,
       price: product.price,
@@ -62,7 +44,26 @@ const getProducts = async (req, resp, next) => {
       type: product.type,
       dateEntry: product.dateEntry,
     }));
-    resp.json(response); // Send the list of products as a JSON response
+
+    /*Add pagination link headers*/
+    const totalPages = Math.ceil(totalProducts / limit);
+    const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+    const links = {};
+
+    if (startIndex > 0) {
+      links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
+      links.first = `${baseUrl}?page=1&limit=${limit}`;
+    }
+
+    if (endIndex > products.length) {
+      links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
+      links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+    }
+    // Set pagination link headers in the response
+    resp.setHeader('link', JSON.stringify(links));
+
+    // Send the list of products as a JSON response
+    resp.json(response);
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
