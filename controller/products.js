@@ -138,7 +138,11 @@ const createProduct = async (req, res, next) => {
   let { image, type } = req.body;
 
   if (!name || !price) {
-    return res.status(400).json({ error: 'Name and price are required' });
+    return next({ statusCode: 400, message: 'Name and price are required' });
+  }
+
+  if (typeof name !== 'string' || typeof price !== 'number' || price < 0) {
+    return next({ statusCode: 400 });
   }
 
   if (!image || typeof image !== 'string') {
