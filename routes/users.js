@@ -17,7 +17,7 @@ async function initAdminUser(app, next) {
   if (!adminEmail || !adminPassword) {
     return;
   }
-
+  console.log(adminEmail, adminPassword);
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),

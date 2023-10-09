@@ -1,4 +1,5 @@
 const { Product } = require('../models/ProductModel');
+const { Types } = require('mongoose');
 
 // ---------------------- Function to get a list of products ----------------------
 /**
@@ -20,7 +21,7 @@ const { Product } = require('../models/ProductModel');
  * @code {200} si la autenticación es correcta
  * @code {401} si no hay cabecera de autenticación
  */
-const getProducts = async (req, res, next) => {
+const getProducts = async (req, resp, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
@@ -28,32 +29,14 @@ const getProducts = async (req, res, next) => {
   const endIndex = page * limit;
 
   try {
-    const products = await Product.find({});
-    const numberOfPages = Math.ceil(products.length / limit);
-    const response = {};
+    // Get the total number of products in the database
+    const totalProducts = await Product.estimatedDocumentCount();
 
-    response.pagination = {
-      page: page,
-      pageSize: limit,
-      numberOfPages: numberOfPages,
-    };
+    // Perform paginated query to retrieve products
+    const products = await Product.find({}).skip(startIndex).limit(limit);
+    let response = [];
 
-    if (startIndex > 0) {
-      response.link = {
-        first: `/products?page=1&limit=${limit}`,
-        prev: `/products?page=${page - 1}&limit=${limit}`,
-      };
-    }
-
-    if (endIndex < products.length) {
-      response.link = {
-        ...response.link,
-        next: `/products?page=${page + 1}&limit=${limit}`,
-        last: `/products?page=${numberOfPages}&limit=${limit}`,
-      };
-    }
-
-    response.result = products.slice(startIndex, endIndex).map((product) => ({
+    response = products.map((product) => ({
       id: product._id,
       name: product.name,
       price: product.price,
@@ -61,7 +44,26 @@ const getProducts = async (req, res, next) => {
       type: product.type,
       dateEntry: product.dateEntry,
     }));
-    res.json(response); // Send the list of products as a JSON response
+
+    /*Add pagination link headers*/
+    const totalPages = Math.ceil(totalProducts / limit);
+    const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+    const links = {};
+
+    if (startIndex > 0) {
+      links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
+      links.first = `${baseUrl}?page=1&limit=${limit}`;
+    }
+
+    if (endIndex > products.length) {
+      links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
+      links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+    }
+    // Set pagination link headers in the response
+    resp.setHeader('link', JSON.stringify(links));
+
+    // Send the list of products as a JSON response
+    resp.json(response);
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
@@ -86,16 +88,27 @@ const getProducts = async (req, res, next) => {
 const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
   try {
+    // Validation of productId
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
+    }
+
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return next({ statusCode: 404, message: 'Product not found' });
     }
 
-    res.json(product);
+    res.json({
+      id: product._id,
+      name: product.name,
+      price: product.image,
+      type: product.type,
+      product: product.dateEntry,
+    });
   } catch (error) {
-    console.error('Error getting products:', error);
-    next(error); // Pass the error to the error handling middleware
+    console.error('Error getting products:', error.message, error.status);
+    next({ statusCode: 500 }); // Pass the error to the error handling middleware
   }
 };
 
@@ -121,10 +134,22 @@ const getProductById = async (req, res, next) => {
  **/
 
 const createProduct = async (req, res, next) => {
-  const { name, price, image, type } = req.body;
+  const { name, price } = req.body;
+  let { image, type } = req.body;
 
   if (!name || !price) {
-    return res.status(400).json({ error: 'Name and price are required' });
+    return next({ statusCode: 400, message: 'Name and price are required' });
+  }
+
+  if (typeof name !== 'string' || typeof price !== 'number' || price < 0) {
+    return next({ statusCode: 400 });
+  }
+
+  if (!image || typeof image !== 'string') {
+    image = '';
+  }
+  if (!type || typeof type !== 'string') {
+    type = '';
   }
 
   try {
@@ -137,9 +162,23 @@ const createProduct = async (req, res, next) => {
     };
 
     const product_1 = new Product(newProduct);
-    //console.log(product_1);
-    product_1.save();
-    return res.send({ message: 'Product Created' });
+    let product1Id = '';
+    product_1
+      .save()
+      .then((result) => {
+        product1Id = result._id.toString();
+        return res.send({
+          _id: product1Id,
+          name: result.name,
+          price: result.price,
+          image: result.image,
+          type: result.type,
+          dateEntry: result.dateEntry,
+        });
+      })
+      .catch((error) => {
+        return next({ statusCode: 500 });
+      });
   } catch (error) {
     console.error('Error getting products:', error);
     next(error); // Pass the error to the error handling middleware
@@ -169,22 +208,61 @@ const updateProduct = async (req, res, next) => {
   const productId = req.params.productId;
   const { name, price, image, type } = req.body;
 
-  if (!name && !price && !image && !type) {
-    return res
-      .status(400)
-      .json({ message: 'Ninguna propiedad a modificar fue indicada' });
+  // Check if req.body is empty
+  if (Object.values(req.body).length === 0) {
+    return next({ statusCode: 400 });
+  }
+
+  // Validation of name
+  if (name !== undefined && name !== null) {
+    if (typeof name !== 'string' || name.trim() === '') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of price
+  if (price !== undefined && price !== null) {
+    if (
+      typeof price !== 'number' ||
+      isNaN(price) ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of image
+  if (image !== undefined && image !== null) {
+    if (typeof image !== 'string') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  // Validation of type
+  if (type !== undefined && type !== null) {
+    if (typeof type !== 'string') {
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
   }
 
   try {
+    // Validation of productId
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       { name, price, image, type },
       { new: true }
     );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
 
     res.json(updatedProduct);
   } catch (error) {
@@ -208,28 +286,31 @@ const updateProduct = async (req, res, next) => {
    * @code {404} si el producto con `productId` indicado no existe
 **/
 
-const deleteProduct = async (req, res, next) => {
+const deleteProduct = async (req, resp, next) => {
   const productId = req.params.productId;
 
   try {
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+    if (!Types.ObjectId.isValid(productId)) {
+      return next({ statusCode: 404 });
     }
 
-    //Delete
-    const result = await Product.deleteOne({ _id: productId });
-    return res.send({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      type: product.type,
-    });
+    const productFound = await Product.findById(productId);
+
+    if (!productFound) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
+    const result = await Product.findByIdAndDelete(productId);
+
+    if (result.deletedCount === 0) {
+      return next({ statusCode: 404, message: 'Product not found' });
+    }
+
+    const { _id, name, price, image, type, dateEntry } = result;
+
+    resp.json({ _id, name, price, image, type, dateEntry });
   } catch (error) {
-    console.error('Error getting products:', error);
-    next(error); // Pass the error to the error handling middleware
+    return next({ statusCode: 500 });
   }
 };
 

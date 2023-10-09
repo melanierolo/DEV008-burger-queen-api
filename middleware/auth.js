@@ -12,9 +12,10 @@ module.exports = (secret) => (req, resp, next) => {
   if (type.toLowerCase() !== 'bearer') {
     return next();
   }
-
+  // console.log(token, 'auth');
   jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
+      // console.error(err.message, err.status);
       return next({ statusCode: 403 });
     }
 
@@ -56,5 +57,5 @@ module.exports.requireAdmin = (req, resp, next) =>
   !module.exports.isAuthenticated(req)
     ? next({ statusCode: 401 })
     : !module.exports.isAdmin(req)
-    ? next(403)
+    ? next({ statusCode: 403 })
     : next();

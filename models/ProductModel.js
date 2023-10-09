@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const productSchema = Schema({
+const productSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -17,9 +16,10 @@ const productSchema = Schema({
     default: Date.now,
   },
 });
+
 // Entity
-// The first argument passed to the model should be the singular form of your collection name.
-// Mongoose automatically changes this to the plural form, transforms it to lowercase
-const Product = new mongoose.model('Product', productSchema);
+// The first argument passed to the model should start with an uppercase letter,
+// as Mongoose automatically converts it to lowercase and pluralizes it.
+const Product = mongoose.model('Product', productSchema);
 
 module.exports = { Product };

@@ -21,7 +21,7 @@ const __e2e = {
   testUserCredentials: {
     email: 'test@test.test',
     password: '123456ABCd+',
-    role: 'admin',
+    role: 'waiter',
   },
   testUserToken: null,
   childProcessPid: null,
@@ -32,18 +32,16 @@ const __e2e = {
 };
 
 const fetch = (url, opts = {}) =>
-  import('node-fetch').then(({ default: fetch }) =>
-    fetch(`${baseUrl}${url}`, {
-      ...opts,
-      headers: {
-        'content-type': 'application/json',
-        ...opts.headers,
-      },
-      ...(opts.body && typeof opts.body !== 'string'
-        ? { body: JSON.stringify(opts.body) }
-        : {}),
-    })
-  );
+  global.fetch(`${baseUrl}${url}`, {
+    ...opts,
+    headers: {
+      'content-type': 'application/json',
+      ...opts.headers,
+    },
+    ...(opts.body && typeof opts.body !== 'string'
+      ? { body: JSON.stringify(opts.body) }
+      : {}),
+  });
 
 const fetchWithAuth =
   (token) =>
@@ -85,7 +83,9 @@ const createTestUser = () =>
       }
       return resp.json();
     })
-    .then(({ token }) => Object.assign(__e2e, { testUserToken: token }));
+    .then(({ accessToken }) =>
+      Object.assign(__e2e, { testUserToken: accessToken })
+    );
 
 const checkAdminCredentials = () =>
   fetch('/auth', {
