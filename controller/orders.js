@@ -1,4 +1,6 @@
-const { Order } = require('../models/ProductModel');
+const { Order } = require('../models/OrderModel');
+const { User } = require('../models/UserModel');
+const { Product } = require('../models/ProductModel');
 
 /* --------------------- Create a order ---------------------*/
 /**
@@ -23,7 +25,91 @@ const { Order } = require('../models/ProductModel');
  * @code {400} no se indica `userId` o se intenta crear una orden sin productos
  * @code {401} si no hay cabecera de autenticación
  */
-const createOrder = async (req, res, next) => {};
+const createOrder = async (req, resp, next) => {
+  const { userId, client, products, status, dateEntry } = req.body;
+  console.log('data:', userId, client, products);
+  // Define a function to check if a value is a string
+  const isString = (value) => typeof value === 'string' && value.trim() !== '';
+
+  // Define a function to check if a value is a valid product
+  const isValidProduct = (product) =>
+    typeof product === 'object' && product !== null;
+
+  if (!userId || !products) {
+    return next({ statusCode: 400, message: 'Invalid request body-a1' });
+  }
+  if (!isString(userId) || !Array.isArray(products) || products.length === 0) {
+    next({ statusCode: 400, message: 'Invalid request body-a2' });
+  }
+
+  products.forEach((product) => {
+    console.log(
+      'product',
+      !isValidProduct(product) ||
+        typeof product.qty !== 'number' ||
+        product.qty <= 0,
+      !isValidProduct(product),
+      typeof product.qty !== 'number',
+      product.qty <= 0
+    );
+    if (
+      !isValidProduct(product) ||
+      typeof product.qty !== 'number' ||
+      product.qty <= 0
+    ) {
+      next({ statusCode: 400, message: 'Invalid request body -a3' });
+    }
+  });
+
+  try {
+    // Ensure the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      next({ statusCode: 400, message: 'Invalid request body userId' });
+    }
+
+    // Ensure that all provided product IDs exist
+    const productIds = products.map((product) => product.product.id);
+
+    const existingProducts = await Product.find({ _id: { $in: productIds } });
+    if (existingProducts.length !== productIds.length) {
+      return next({ statusCode: 400, message: 'Invalid product IDs' });
+    }
+
+    // Create a new order
+    const newOrder = new Order({
+      userId,
+      client: client || 'client',
+      products: products.map((product) => ({
+        qty: product.qty,
+        product: product.product.id,
+      })),
+      status: status || 'pending', // Set a default value if status is empty
+    });
+
+    // Save the order to the database
+    await newOrder.save();
+
+    // Populate the products field
+    const populatedOrder = await Order.findById(newOrder._id).populate(
+      'products.product'
+    );
+
+    resp.json({
+      id: populatedOrder._id,
+      userId: populatedOrder.userId,
+      client: populatedOrder.client,
+      products: populatedOrder.products,
+      status: populatedOrder.status,
+      dateEntry: populatedOrder.dateEntry,
+      dateProcessed: populatedOrder.dateProcessed,
+    });
+  } catch (error) {
+    // Handle any errors
+    console.error(error.status, error.message);
+    next({ statusCode: 500 });
+  }
+};
 
 module.exports = {
   createOrder,

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const orderSchema = new mongoose.Schema({
   userId: {
@@ -12,7 +13,7 @@ const orderSchema = new mongoose.Schema({
   products: [
     {
       qty: Number,
-      productId: {
+      product: {
         type: Schema.ObjectId,
         ref: 'Product', // This references the 'products' collection
       },
@@ -29,6 +30,7 @@ const orderSchema = new mongoose.Schema({
   },
   dateProcessed: {
     type: Date,
+    default: Date.now,
   },
 });
 

@@ -104,7 +104,7 @@ const getProductById = async (req, res, next) => {
       name: product.name,
       price: product.image,
       type: product.type,
-      product: product.dateEntry,
+      dataEntry: product.dateEntry,
     });
   } catch (error) {
     console.error('Error getting products:', error.message, error.status);
