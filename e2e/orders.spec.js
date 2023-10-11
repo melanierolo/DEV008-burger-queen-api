@@ -225,8 +225,8 @@ describe('GET /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -234,7 +234,7 @@ describe('GET /orders/:orderId', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => fetchAsTestUser(`/orders/${json._id}`))
+      .then((json) => fetchAsTestUser(`/orders/${json.id}`))
       .then((resp) => {
         expect(resp.status).toBe(200);
         return resp.json();
@@ -262,8 +262,8 @@ describe('GET /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -271,7 +271,9 @@ describe('GET /orders/:orderId', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => fetchAsAdmin(`/orders/${json._id}`))
+      .then((json) => {
+        return fetchAsAdmin(`/orders/${json.id}`);
+      })
       .then((resp) => {
         expect(resp.status).toBe(200);
         return resp.json();
