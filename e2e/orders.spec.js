@@ -511,8 +511,8 @@ describe('DELETE /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -520,15 +520,15 @@ describe('DELETE /orders/:orderId', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then(({ _id }) =>
-        fetchAsAdmin(`/orders/${_id}`, { method: 'DELETE' }).then((resp) => ({
+      .then(({ id }) =>
+        fetchAsAdmin(`/orders/${id}`, { method: 'DELETE' }).then((resp) => ({
           resp,
-          _id,
+          id,
         }))
       )
-      .then(({ resp, _id }) => {
+      .then(({ resp, id }) => {
         expect(resp.status).toBe(200);
-        return fetchAsAdmin(`/orders/${_id}`);
+        return fetchAsAdmin(`/orders/${id}`);
       })
       .then((resp) => expect(resp.status).toBe(404)));
 });
