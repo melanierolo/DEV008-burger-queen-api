@@ -1,5 +1,9 @@
 const { requireAuth } = require('../middleware/auth');
-const { createOrder, getOrders } = require('../controller/orders');
+const {
+  createOrder,
+  getOrders,
+  getOrderById,
+} = require('../controller/orders');
 
 /** @module orders */
 module.exports = (app, nextMain) => {
@@ -17,22 +21,8 @@ module.exports = (app, nextMain) => {
    * @path {GET} /orders/:orderId
    * @params {String} :orderId `id` de la orden a consultar
    * @auth Requiere `token` de autenticación
-   * @response {Object} order
-   * @response {String} order._id Id
-   * @response {String} order.userId Id usuaria que creó la orden
-   * @response {String} order.client Clienta para quien se creó la orden
-   * @response {Array} order.products Productos
-   * @response {Object} order.products[] Producto
-   * @response {Number} order.products[].qty Cantidad
-   * @response {Object} order.products[].product Producto
-   * @response {String} order.status Estado: `pending`, `canceled`, `delivering` o `delivered`
-   * @response {Date} order.dateEntry Fecha de creación
-   * @response {Date} [order.dateProcessed] Fecha de cambio de `status` a `delivered`
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {404} si la orden con `orderId` indicado no existe
    */
-  app.get('/orders/:orderId', requireAuth, (req, resp, next) => {});
+  app.get('/orders/:orderId', requireAuth, getOrderById);
 
   /**
    * @name POST /orders
