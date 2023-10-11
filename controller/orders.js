@@ -1,6 +1,7 @@
 const { Order } = require('../models/OrderModel');
 const { User } = require('../models/UserModel');
 const { Product } = require('../models/ProductModel');
+const orders = require('../routes/orders');
 
 /* --------------------- Create a order ---------------------*/
 /**
@@ -111,6 +112,99 @@ const createOrder = async (req, resp, next) => {
   }
 };
 
+/*-----------------getOrders----------------------*/
+/**
+ * @query {String} [page=1] Página del listado a consultar
+ * @query {String} [limit=10] Cantitad de elementos por página
+ * @header {Object} link Parámetros de paginación
+ * @header {String} link.first Link a la primera página
+ * @header {String} link.prev Link a la página anterior
+ * @header {String} link.next Link a la página siguiente
+ * @header {String} link.last Link a la última página
+ * @response {Array} orders
+ * @response {String} orders[]._id Id
+ * @response {String} orders[].userId Id usuaria que creó la orden
+ * @response {String} orders[].client Clienta para quien se creó la orden
+ * @response {Array} orders[].products Productos
+ * @response {Object} orders[].products[] Producto
+ * @response {Number} orders[].products[].qty Cantidad
+ * @response {Object} orders[].products[].product Producto
+ * @response {String} orders[].status Estado: `pending`, `canceled`, `delivering` o `delivered`
+ * @response {Date} orders[].dateEntry Fecha de creación
+ * @response {Date} [orders[].dateProcessed] Fecha de cambio de `status` a `delivered`
+ * @code {200} si la autenticación es correcta
+ * @code {401} si no hay cabecera de autenticación
+ */
+
+const getOrders = async (req, resp, next) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  try {
+    // Get the total number of orders in the database
+    const totalOrders = await Order.estimatedDocumentCount();
+
+    // Perform paginated query to retrieve orders with populated products
+    const orders = await Order.find({})
+      .populate({
+        path: 'products',
+        populate: {
+          path: 'product',
+          model: 'Product',
+        },
+      })
+      .skip(startIndex)
+      .limit(limit);
+
+    const response = orders.map((order) => ({
+      id: order._id,
+      userId: order.userId,
+      client: order.client,
+      products: order.products.map((productItem) => ({
+        qty: productItem.qty,
+        product: {
+          id: productItem.product._id,
+          name: productItem.product.name,
+          price: productItem.product.price,
+          image: productItem.product.image,
+          type: productItem.product.type,
+          dateEntry: productItem.product.dateEntry,
+        },
+      })),
+      status: order.status,
+      dataEntry: order.dateEntry,
+      dateProcessed: order.dateProcessed,
+    }));
+
+    /*Add pagination link headers*/
+    const totalPages = Math.ceil(totalOrders / limit);
+    const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+    const links = {};
+
+    if (startIndex > 0) {
+      links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
+      links.first = `${baseUrl}?page=1&limit=${limit}`;
+    }
+
+    if (endIndex > orders.length) {
+      links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
+      links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+    }
+
+    // Set pagination link headers in the response
+    resp.setHeader('link', JSON.stringify(links));
+    console.log(response);
+    // Send the list of orders as a JSON response
+    resp.json(response);
+  } catch (error) {
+    console.error('Error getting orders:', error.status, error.message);
+    next({ statusCode: 500 }); // Pass the error to the error handling middleware
+  }
+};
+
 module.exports = {
   createOrder,
+  getOrders,
 };

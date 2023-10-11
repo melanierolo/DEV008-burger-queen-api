@@ -153,7 +153,7 @@ describe('GET /orders', () => {
     Promise.all([
       fetchAsAdmin('/products', {
         method: 'POST',
-        body: { name: 'Test', price: 10 },
+        body: { name: 'Test', price: 25 },
       }),
       fetchAsTestUser('/users/test@test.test'),
     ])
