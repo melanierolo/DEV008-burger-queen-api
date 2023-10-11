@@ -3,6 +3,7 @@ const {
   createOrder,
   getOrders,
   getOrderById,
+  deleteOrder,
 } = require('../controller/orders');
 
 /** @module orders */
@@ -66,24 +67,9 @@ module.exports = (app, nextMain) => {
    * @name DELETE /orders
    * @description Elimina una orden
    * @path {DELETE} /orders
-   * @params {String} :orderId `id` del producto
    * @auth Requiere `token` de autenticación
-   * @response {Object} order
-   * @response {String} order._id Id
-   * @response {String} order.userId Id usuaria que creó la orden
-   * @response {String} order.client Clienta para quien se creó la orden
-   * @response {Array} order.products Productos
-   * @response {Object} order.products[] Producto
-   * @response {Number} order.products[].qty Cantidad
-   * @response {Object} order.products[].product Producto
-   * @response {String} order.status Estado: `pending`, `canceled`, `delivering` o `delivered`
-   * @response {Date} order.dateEntry Fecha de creación
-   * @response {Date} [order.dateProcessed] Fecha de cambio de `status` a `delivered`
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {404} si el producto con `orderId` indicado no existe
    */
-  app.delete('/orders/:orderId', requireAuth, (req, resp, next) => {});
+  app.delete('/orders/:orderId', requireAuth, deleteOrder);
 
   nextMain();
 };

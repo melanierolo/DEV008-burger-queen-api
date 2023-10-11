@@ -223,7 +223,6 @@ const getOrders = async (req, resp, next) => {
  * @code {404} si la orden con `orderId` indicado no existe
  */
 const getOrderById = async (req, resp, next) => {
-  console.log(req.params.orderId);
   const orderId = req.params.orderId;
   try {
     // Validation of orderId
@@ -263,8 +262,71 @@ const getOrderById = async (req, resp, next) => {
     next({ statusCode: 500 }); // Pass the error to the error handling middleware
   }
 };
+
+/*---------------------DELETE----------------------------*/
+/**
+ * @params {String} :orderId `id` del producto
+ * @response {Object} order
+ * @response {String} order._id Id
+ * @response {String} order.userId Id usuaria que creó la orden
+ * @response {String} order.client Clienta para quien se creó la orden
+ * @response {Array} order.products Productos
+ * @response {Object} order.products[] Producto
+ * @response {Number} order.products[].qty Cantidad
+ * @response {Object} order.products[].product Producto
+ * @response {String} order.status Estado: `pending`, `canceled`, `delivering` o `delivered`
+ * @response {Date} order.dateEntry Fecha de creación
+ * @response {Date} [order.dateProcessed] Fecha de cambio de `status` a `delivered`
+ * @code {200} si la autenticación es correcta
+ * @code {401} si no hay cabecera de autenticación
+ * @code {404} si el producto con `orderId` indicado no existe
+ */
+const deleteOrder = async (req, resp, next) => {
+  const orderId = req.params.orderId;
+  try {
+    // Validation of orderId
+    if (!Types.ObjectId.isValid(orderId)) {
+      return next({ statusCode: 404 });
+    }
+
+    const orderFound = await Order.findById(orderId);
+    if (!orderFound) return next({ statusCode: 404 });
+
+    // Populate the products field
+    const populatedOrder = await Order.findByIdAndDelete(orderId).populate(
+      'products.product'
+    );
+
+    if (populatedOrder.deletedCount === 0) {
+      return next({ statusCode: 404, message: 'Order not found' });
+    }
+
+    resp.json({
+      id: populatedOrder._id,
+      userId: populatedOrder.userId,
+      client: populatedOrder.client,
+      products: populatedOrder.products.map((productItem) => ({
+        qty: productItem.qty,
+        product: {
+          id: productItem.product._id,
+          name: productItem.product.name,
+          price: productItem.product.price,
+          image: productItem.product.image,
+          type: productItem.product.type,
+          dateEntry: productItem.product.dateEntry,
+        },
+      })),
+      status: populatedOrder.status,
+      dateEntry: populatedOrder.dateEntry,
+    });
+  } catch (error) {
+    console.error('Error getting orders:', error.message, error.status);
+    next({ statusCode: 500 }); // Pass the error to the error handling middleware
+  }
+};
 module.exports = {
   createOrder,
   getOrders,
   getOrderById,
+  deleteOrder,
 };
