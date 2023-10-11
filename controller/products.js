@@ -136,7 +136,7 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   const { name, price } = req.body;
   let { image, type } = req.body;
-
+  console.log(name, price);
   if (!name || !price) {
     return next({ statusCode: 400, message: 'Name and price are required' });
   }

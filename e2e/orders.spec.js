@@ -116,15 +116,15 @@ describe('GET /orders', () => {
           fetchAsTestUser('/orders', {
             method: 'POST',
             body: {
-              products: [{ productId: product._id, qty: 50 }],
-              userId: user._id,
+              userId: user.id,
+              products: [{ qty: 50, product: { id: product._id } }],
             },
           }),
           fetchAsAdmin('/orders', {
             method: 'POST',
             body: {
-              products: [{ productId: product._id, qty: 25 }],
-              userId: user._id,
+              userId: user.id,
+              products: [{ qty: 25, product: { id: product._id } }],
             },
           }),
         ])
@@ -167,15 +167,15 @@ describe('GET /orders', () => {
           fetchAsTestUser('/orders', {
             method: 'POST',
             body: {
-              products: [{ productId: product._id, qty: 50 }],
-              userId: user._id,
+              userId: user.id,
+              products: [{ qty: 50, product: { id: product._id } }],
             },
           }),
           fetchAsAdmin('/orders', {
             method: 'POST',
             body: {
-              products: [{ productId: product._id, qty: 25 }],
-              userId: user._id,
+              userId: user.id,
+              products: [{ qty: 25, product: { id: product._id } }],
             },
           }),
         ])
