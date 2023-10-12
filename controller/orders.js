@@ -324,9 +324,86 @@ const deleteOrder = async (req, resp, next) => {
     next({ statusCode: 500 }); // Pass the error to the error handling middleware
   }
 };
+
+/* -------------------UPDATE------------------------------*/
+/**
+ * @body {String} [userId] Id usuaria que creó la orden
+ * @body {String} [client] Clienta para quien se creó la orden
+ * @body {Array} [products] Productos
+ * @body {Object} products[] Producto
+ * @body {String} products[].productId Id de un producto
+ * @body {Number} products[].qty Cantidad de ese producto en la orden
+ * @body {String} [status] Estado: `pending`, `canceled`, `delivering` o `delivered`
+ * @response {Object} order
+ * @response {String} order._id Id
+ * @response {String} order.userId Id usuaria que creó la orden
+ * @response {Array} order.products Productos
+ * @response {Object} order.products[] Producto
+ * @response {Number} order.products[].qty Cantidad
+ * @response {Object} order.products[].product Producto
+ * @response {String} order.status Estado: `pending`, `canceled`, `delivering` o `delivered`
+ * @response {Date} order.dateEntry Fecha de creación
+ * @response {Date} [order.dateProcessed] Fecha de cambio de `status` a `delivered`
+ * @code {200} si la autenticación es correcta
+ * @code {400} si no se indican ninguna propiedad a modificar o la propiedad `status` no es valida
+ * @code {401} si no hay cabecera de autenticación
+ * @code {404} si la orderId con `orderId` indicado no existe
+ */
+const updateOrder = async (req, resp, next) => {
+  const orderId = req.params.orderId;
+  const { status } = req.body;
+  console.log('status', status);
+  // Check if req.body is empty
+  if (Object.values(req.body).length === 0) {
+    return next({ statusCode: 400 });
+  }
+  // Check status
+  if (status !== undefined && status !== null) {
+    if (
+      typeof status !== 'string' ||
+      status.trim() === '' ||
+      !(
+        status === 'pending' ||
+        status === 'canceled' ||
+        status === 'preparing' ||
+        status === 'delivering' ||
+        status === 'delivered'
+      )
+    ) {
+      console.log(status, 'Invalid field');
+      return next({ statusCode: 400, message: 'Invalid field' });
+    }
+  }
+
+  try {
+    // Validation of orderId
+    if (!Types.ObjectId.isValid(orderId)) {
+      return next({ statusCode: 404, message: 'Order not found' });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return next({ statusCode: 404, message: 'Order not found' });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    resp.json(updatedOrder);
+  } catch (error) {
+    console.error('Error in updating the order', error.status, error.message);
+    next({ statusCode: 500 });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
   getOrderById,
   deleteOrder,
+  updateOrder,
 };

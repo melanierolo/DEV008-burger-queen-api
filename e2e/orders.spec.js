@@ -285,15 +285,15 @@ describe('GET /orders/:orderId', () => {
       }));
 });
 
-describe('PUT /orders/:orderId', () => {
+describe('PATCH /orders/:orderId', () => {
   it('should fail with 401 when no auth', () =>
-    fetch('/orders/xxx', { method: 'PUT' }).then((resp) =>
+    fetch('/orders/xxx', { method: 'PATCH' }).then((resp) =>
       expect(resp.status).toBe(401)
     ));
 
   it('should fail with 404 when not found', () =>
     fetchAsAdmin('/orders/xxx', {
-      method: 'PUT',
+      method: 'PATCH',
       body: { state: 'canceled' },
     }).then((resp) => expect(resp.status).toBe(404)));
 
@@ -314,8 +314,8 @@ describe('PUT /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -323,9 +323,9 @@ describe('PUT /orders/:orderId', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => fetchAsTestUser(`/orders/${json._id}`))
+      .then((json) => fetchAsTestUser(`/orders/${json.id}`))
       .then((resp) => resp.json())
-      .then((json) => fetchAsAdmin(`/orders/${json._id}`, { method: 'PUT' }))
+      .then((json) => fetchAsAdmin(`/orders/${json.id}`, { method: 'PATCH' }))
       .then((resp) => expect(resp.status).toBe(400)));
 
   it('should fail with 400 when bad status', () =>
@@ -345,8 +345,8 @@ describe('PUT /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -355,8 +355,8 @@ describe('PUT /orders/:orderId', () => {
         return resp.json();
       })
       .then((json) =>
-        fetchAsAdmin(`/orders/${json._id}`, {
-          method: 'PUT',
+        fetchAsAdmin(`/orders/${json.id}`, {
+          method: 'PATCH',
           body: { status: 'oh yeah!' },
         })
       )
@@ -379,8 +379,8 @@ describe('PUT /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -390,8 +390,8 @@ describe('PUT /orders/:orderId', () => {
       })
       .then((json) => {
         expect(json.status).toBe('pending');
-        return fetchAsAdmin(`/orders/${json._id}`, {
-          method: 'PUT',
+        return fetchAsAdmin(`/orders/${json.id}`, {
+          method: 'PATCH',
           body: { status: 'preparing' },
         });
       })
@@ -418,8 +418,8 @@ describe('PUT /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -429,8 +429,8 @@ describe('PUT /orders/:orderId', () => {
       })
       .then((json) => {
         expect(json.status).toBe('pending');
-        return fetchAsAdmin(`/orders/${json._id}`, {
-          method: 'PUT',
+        return fetchAsAdmin(`/orders/${json.id}`, {
+          method: 'PATCH',
           body: { status: 'delivering' },
         });
       })
@@ -457,8 +457,8 @@ describe('PUT /orders/:orderId', () => {
         fetchAsTestUser('/orders', {
           method: 'POST',
           body: {
-            products: [{ productId: product._id, qty: 5 }],
-            userId: user._id,
+            userId: user.id,
+            products: [{ qty: 5, product: { id: product._id } }],
           },
         })
       )
@@ -468,8 +468,8 @@ describe('PUT /orders/:orderId', () => {
       })
       .then((json) => {
         expect(json.status).toBe('pending');
-        return fetchAsAdmin(`/orders/${json._id}`, {
-          method: 'PUT',
+        return fetchAsAdmin(`/orders/${json.id}`, {
+          method: 'PATCH',
           body: { status: 'delivered' },
         });
       })

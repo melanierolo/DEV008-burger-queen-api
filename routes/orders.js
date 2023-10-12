@@ -4,6 +4,7 @@ const {
   getOrders,
   getOrderById,
   deleteOrder,
+  updateOrder,
 } = require('../controller/orders');
 
 /** @module orders */
@@ -34,34 +35,13 @@ module.exports = (app, nextMain) => {
   app.post('/orders', requireAuth, createOrder);
 
   /**
-   * @name PUT /orders
+   * @name PATCH /orders
    * @description Modifica una orden
-   * @path {PUT} /products
+   * @path {PATCH} /products
    * @params {String} :orderId `id` de la orden
    * @auth Requiere `token` de autenticación
-   * @body {String} [userId] Id usuaria que creó la orden
-   * @body {String} [client] Clienta para quien se creó la orden
-   * @body {Array} [products] Productos
-   * @body {Object} products[] Producto
-   * @body {String} products[].productId Id de un producto
-   * @body {Number} products[].qty Cantidad de ese producto en la orden
-   * @body {String} [status] Estado: `pending`, `canceled`, `delivering` o `delivered`
-   * @response {Object} order
-   * @response {String} order._id Id
-   * @response {String} order.userId Id usuaria que creó la orden
-   * @response {Array} order.products Productos
-   * @response {Object} order.products[] Producto
-   * @response {Number} order.products[].qty Cantidad
-   * @response {Object} order.products[].product Producto
-   * @response {String} order.status Estado: `pending`, `canceled`, `delivering` o `delivered`
-   * @response {Date} order.dateEntry Fecha de creación
-   * @response {Date} [order.dateProcessed] Fecha de cambio de `status` a `delivered`
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se indican ninguna propiedad a modificar o la propiedad `status` no es valida
-   * @code {401} si no hay cabecera de autenticación
-   * @code {404} si la orderId con `orderId` indicado no existe
    */
-  app.put('/orders/:orderId', requireAuth, (req, resp, next) => {});
+  app.patch('/orders/:orderId', requireAuth, updateOrder);
 
   /**
    * @name DELETE /orders
