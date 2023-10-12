@@ -256,6 +256,7 @@ const getOrderById = async (req, resp, next) => {
       })),
       status: populatedOrder.status,
       dateEntry: populatedOrder.dateEntry,
+      dateProcessed: populatedOrder.dateProcessed,
     });
   } catch (error) {
     console.error('Error getting orders:', error.message, error.status);
@@ -352,7 +353,7 @@ const deleteOrder = async (req, resp, next) => {
 const updateOrder = async (req, resp, next) => {
   const orderId = req.params.orderId;
   const { status } = req.body;
-  console.log('status', status);
+
   // Check if req.body is empty
   if (Object.values(req.body).length === 0) {
     return next({ statusCode: 400 });
@@ -387,13 +388,32 @@ const updateOrder = async (req, resp, next) => {
       return next({ statusCode: 404, message: 'Order not found' });
     }
 
+    // Update and populate the products field
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
-      { status },
+      { status: status, dateProcessed: new Date() },
       { new: true }
-    );
+    ).populate('products.product');
 
-    resp.json(updatedOrder);
+    resp.json({
+      id: updatedOrder._id,
+      userId: updatedOrder.userId,
+      client: updatedOrder.client,
+      products: updatedOrder.products.map((productItem) => ({
+        qty: productItem.qty,
+        product: {
+          id: productItem.product._id,
+          name: productItem.product.name,
+          price: productItem.product.price,
+          image: productItem.product.image,
+          type: productItem.product.type,
+          dateEntry: productItem.product.dateEntry,
+        },
+      })),
+      status: updatedOrder.status,
+      dateEntry: updatedOrder.dateEntry,
+      dateProcessed: updatedOrder.dateProcessed,
+    });
   } catch (error) {
     console.error('Error in updating the order', error.status, error.message);
     next({ statusCode: 500 });
