@@ -187,7 +187,7 @@ describe('POST /users', () => {
     }).then((resp) => expect(resp.status).toBe(403)));
 });
 
-describe.only('PATCH /users/:uid', () => {
+describe('PATCH /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz', { method: 'PATCH' }).then((resp) =>
       expect(resp.status).toBe(401)
