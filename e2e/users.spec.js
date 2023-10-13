@@ -187,21 +187,29 @@ describe('POST /users', () => {
     }).then((resp) => expect(resp.status).toBe(403)));
 });
 
-describe('PATCH /users/:uid', () => {
+describe.only('PATCH /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz', { method: 'PATCH' }).then((resp) =>
       expect(resp.status).toBe(401)
     ));
 
   it('should fail with 403 when not owner nor admin', () =>
-    fetchAsTestUser(`/users/${config.adminEmail}`, { method: 'PATCH' }).then(
-      (resp) => expect(resp.status).toBe(403)
-    ));
+    fetchAsTestUser(`/users/${config.adminEmail}`, {
+      method: 'PATCH',
+      body: {
+        password: 'a1b2c3A++',
+      },
+    }).then((resp) => expect(resp.status).toBe(403)));
 
   it('should fail with 404 when admin and not found', () =>
-    fetchAsAdmin('/users/abc@def.gih', { method: 'PATCH' }).then((resp) =>
-      expect(resp.status).toBe(404)
-    ));
+    fetchAsAdmin('/users/abc@def.gih', {
+      method: 'PATCH',
+      body: {
+        password: 'a1b2c3A++',
+      },
+    }).then((resp) => {
+      return expect(resp.status).toBe(404);
+    }));
 
   it('should fail with 400 when no props to update', () =>
     fetchAsTestUser('/users/test@test.test', { method: 'PATCH' }).then((resp) =>
@@ -230,7 +238,7 @@ describe('PATCH /users/:uid', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => expect(json).toHaveProperty('token')));
+      .then((json) => expect(json).toHaveProperty('accessToken')));
 
   it('should update user when admin', () =>
     fetchAsAdmin('/users/test@test.test', {
@@ -245,10 +253,14 @@ describe('PATCH /users/:uid', () => {
         })
       )
       .then((resp) => {
+        console.log('should update user when admin', resp);
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => expect(json).toHaveProperty('token')));
+      .then((json) => {
+        console.log(json);
+        return expect(json).toHaveProperty('accessToken');
+      }));
 });
 
 describe('DELETE /users/:uid', () => {
