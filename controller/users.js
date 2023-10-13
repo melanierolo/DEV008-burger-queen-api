@@ -175,13 +175,15 @@ module.exports = {
             });
           })
           .catch((error) => {
+            console.error(error.status, error.message);
             return next({ statusCode: 500 });
           });
       })
       .catch((error) => {
+        console.error(error.status, error.message);
         return next({
           statusCode: 500,
-          message: 'Error checking existing user',
+          message: 'Server error - user',
         });
       });
   },
@@ -196,30 +198,42 @@ module.exports = {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  deleteUser: (req, resp, next) => {
+  deleteUser: async (req, resp, next) => {
     const userData = req.params.uid;
-    const isEmail = userData.includes('@') ? true : false;
+    const isEmail = userData.includes('@');
     const query = isEmail ? { email: userData } : { _id: userData };
 
-    //Delete
-    User.deleteOne(query)
-      .then(async (user) => {
-        //console.log(user, 'user');
-        if (user.deletedCount === 0) {
-          return next({
-            statusCode: 404,
-            message: 'User not found',
-          });
-        }
-        return resp.json({ message: 'User Deleted' });
-      })
-      .catch((error) => {
-        return next({
-          statusCode: 500,
-          message: 'Error getting user',
-        });
+    // Check if the user is authorized
+    const isAdminOrSameUser =
+      req.user.role === 'admin' ||
+      req.user.email === userData ||
+      req.userId === userData;
+
+    if (!isAdminOrSameUser) {
+      return next({
+        statusCode: 403,
+        message: 'Unauthorized to update this user',
       });
+    }
+    try {
+      // Check if the user exists
+      const user = await User.findOne(query);
+      if (!user) next({ statusCode: 404, message: 'User not found' });
+
+      // Delete user
+      const deletionResult = await User.deleteOne(query);
+
+      if (deletionResult.deletedCount === 0) {
+        return next({ statusCode: 404, message: 'User not found' });
+      }
+
+      return resp.json({ message: 'User Deleted' });
+    } catch (error) {
+      console.error(error);
+      return next({ statusCode: 500, message: 'Server error - user' });
+    }
   },
+
   /*-------------------------- UPDATE --------------------------*/
   /**
    * @body {String} email Correo

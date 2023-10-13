@@ -253,7 +253,6 @@ describe('PATCH /users/:uid', () => {
         })
       )
       .then((resp) => {
-        console.log('should update user when admin', resp);
         expect(resp.status).toBe(200);
         return resp.json();
       })
@@ -263,7 +262,7 @@ describe('PATCH /users/:uid', () => {
       }));
 });
 
-describe('DELETE /users/:uid', () => {
+describe.only('DELETE /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz', { method: 'DELETE' }).then((resp) =>
       expect(resp.status).toBe(401)
@@ -283,8 +282,12 @@ describe('DELETE /users/:uid', () => {
     const credentials = {
       email: `foo-${Date.now()}@bar.baz`,
       password: '1234abcD+',
+      role: 'admin',
     };
-    return fetchAsAdmin('/users', { method: 'POST', body: credentials })
+    return fetchAsAdmin('/users', {
+      method: 'POST',
+      body: { email: credentials.email, password: credentials.password },
+    })
       .then((resp) => expect(resp.status).toBe(200))
       .then(() => fetch('/auth', { method: 'POST', body: credentials }))
       .then((resp) => {
@@ -305,9 +308,13 @@ describe('DELETE /users/:uid', () => {
     const credentials = {
       email: `foo-${Date.now()}@bar.baz`,
       password: '1234abcD+',
+      role: 'admin',
     };
     return fetchAsAdmin('/users', { method: 'POST', body: credentials })
-      .then((resp) => expect(resp.status).toBe(200))
+      .then((resp) => {
+        console.log('should delete other user as admin', resp);
+        return expect(resp.status).toBe(200);
+      })
       .then(() =>
         fetchAsAdmin(`/users/${credentials.email}`, { method: 'DELETE' })
       )
