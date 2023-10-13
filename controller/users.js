@@ -82,6 +82,20 @@ module.exports = {
   getUserById: async (req, resp, next) => {
     const userData = req.params.uid;
     const isEmail = userData.includes('@') ? true : false;
+
+    // Check if the user is authorized
+    const isAdminOrSameUser =
+      req.user.role === 'admin' ||
+      req.user.email === userData ||
+      req.userId === userData;
+
+    if (!isAdminOrSameUser) {
+      return next({
+        statusCode: 403,
+        message: 'Unauthorized to update this user',
+      });
+    }
+
     try {
       const user = isEmail
         ? await User.findOne({ email: userData })

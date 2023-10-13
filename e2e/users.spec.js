@@ -81,7 +81,7 @@ describe('GET /users', () => {
       }));
 });
 
-describe('GET /users/:uid', () => {
+describe.only('GET /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz').then((resp) => expect(resp.status).toBe(401)));
 
@@ -257,12 +257,11 @@ describe('PATCH /users/:uid', () => {
         return resp.json();
       })
       .then((json) => {
-        console.log(json);
         return expect(json).toHaveProperty('accessToken');
       }));
 });
 
-describe.only('DELETE /users/:uid', () => {
+describe('DELETE /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz', { method: 'DELETE' }).then((resp) =>
       expect(resp.status).toBe(401)
@@ -312,7 +311,6 @@ describe.only('DELETE /users/:uid', () => {
     };
     return fetchAsAdmin('/users', { method: 'POST', body: credentials })
       .then((resp) => {
-        console.log('should delete other user as admin', resp);
         return expect(resp.status).toBe(200);
       })
       .then(() =>
