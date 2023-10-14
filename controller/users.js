@@ -82,6 +82,20 @@ module.exports = {
   getUserById: async (req, resp, next) => {
     const userData = req.params.uid;
     const isEmail = userData.includes('@') ? true : false;
+
+    // Check if the user is authorized
+    const isAdminOrSameUser =
+      req.user.role === 'admin' ||
+      req.user.email === userData ||
+      req.userId === userData;
+
+    if (!isAdminOrSameUser) {
+      return next({
+        statusCode: 403,
+        message: 'Unauthorized to update this user',
+      });
+    }
+
     try {
       const user = isEmail
         ? await User.findOne({ email: userData })
@@ -175,13 +189,15 @@ module.exports = {
             });
           })
           .catch((error) => {
+            console.error(error.status, error.message);
             return next({ statusCode: 500 });
           });
       })
       .catch((error) => {
+        console.error(error.status, error.message);
         return next({
           statusCode: 500,
-          message: 'Error checking existing user',
+          message: 'Server error - user',
         });
       });
   },
@@ -196,30 +212,42 @@ module.exports = {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  deleteUser: (req, resp, next) => {
+  deleteUser: async (req, resp, next) => {
     const userData = req.params.uid;
-    const isEmail = userData.includes('@') ? true : false;
+    const isEmail = userData.includes('@');
     const query = isEmail ? { email: userData } : { _id: userData };
 
-    //Delete
-    User.deleteOne(query)
-      .then(async (user) => {
-        //console.log(user, 'user');
-        if (user.deletedCount === 0) {
-          return next({
-            statusCode: 404,
-            message: 'User not found',
-          });
-        }
-        return resp.json({ message: 'User Deleted' });
-      })
-      .catch((error) => {
-        return next({
-          statusCode: 500,
-          message: 'Error getting user',
-        });
+    // Check if the user is authorized
+    const isAdminOrSameUser =
+      req.user.role === 'admin' ||
+      req.user.email === userData ||
+      req.userId === userData;
+
+    if (!isAdminOrSameUser) {
+      return next({
+        statusCode: 403,
+        message: 'Unauthorized to update this user',
       });
+    }
+    try {
+      // Check if the user exists
+      const user = await User.findOne(query);
+      if (!user) next({ statusCode: 404, message: 'User not found' });
+
+      // Delete user
+      const deletionResult = await User.deleteOne(query);
+
+      if (deletionResult.deletedCount === 0) {
+        return next({ statusCode: 404, message: 'User not found' });
+      }
+
+      return resp.json({ message: 'User Deleted' });
+    } catch (error) {
+      console.error(error);
+      return next({ statusCode: 500, message: 'Server error - user' });
+    }
   },
+
   /*-------------------------- UPDATE --------------------------*/
   /**
    * @body {String} email Correo
@@ -237,91 +265,91 @@ module.exports = {
    * @code {403} una usuaria no admin intenta de modificar sus `roles`
    * @code {404} si la usuaria solicitada no existe
    */
-  updateUser: (req, resp, next) => {
+  updateUser: async (req, resp, next) => {
     const userData = req.params.uid;
     const isEmail = userData.includes('@') ? true : false;
     const query = isEmail ? { email: userData } : { _id: userData };
-    //New Data
-    const newData = req.body;
-    /*
-    1. validar cada propiedad (si no, lanzar excepción)
-    2. consulto la colección actual
-    3. modifico algunas propiedades de la colección actual
-        (si no me envían alguna propiedad no la sobreescribo)
-    4. guardo la colección completa
-    */
-    // there are no values in the req.body"
+    let newData = req.body;
+
+    // Check if there are no values in the req.body
     if (Object.values(newData).length === 0) {
-      return next({ statusCode: 400 });
+      return next({ statusCode: 400, message: 'No data provided for update' });
     }
-    // ------Validate each property
+
+    // Check if the user is the same user or an admin
+    const isAdminOrSameUser =
+      req.user.role === 'admin' ||
+      req.user.email === userData ||
+      req.userId === userData;
+
+    if (!isAdminOrSameUser)
+      next({ statusCode: 403, message: 'Unauthorized to update this user' });
+
+    // Check If the user is not an admin and tries to change their own role, return 403
+    if (req.user.role !== 'admin' && newData.role) {
+      return next({
+        statusCode: 403,
+        message: 'You are not authorized to change your role',
+      });
+    }
+    // Validate each property (email and password)
     for (const fieldName in newData) {
       const fieldValue = newData[fieldName];
-      //console.log(`Field: ${fieldName}, Value: ${fieldValue}`);
-      //console.log(fieldName, typeof fieldName);
-
-      function invalidFieldError(message) {
-        return next({
-          statusCode: 400,
-          message: message,
-        });
-      }
-
-      if (typeof fieldValue !== 'string') {
-        return invalidFieldError('The value is invalid');
-      }
 
       switch (fieldName) {
         case 'email':
+          // Validate email format using regex
           const emailRegex =
             /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
           if (!emailRegex.test(fieldValue)) {
-            return invalidFieldError('Invalid email address');
+            return next({ statusCode: 400, message: 'Invalid email address' });
           }
           break;
 
         case 'password':
+          // Validate password using regex
           const passwordRegex =
             /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
           if (!passwordRegex.test(fieldValue)) {
-            return invalidFieldError(
-              'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.'
-            );
-          }
-          break;
-
-        case 'role':
-          const validRoles = ['admin', 'chef', 'waiter'];
-          if (!validRoles.includes(fieldValue)) {
-            return invalidFieldError('Invalid role');
+            return next({
+              statusCode: 400,
+              message:
+                'Invalid password. Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.',
+            });
           }
           break;
 
         default:
-          return invalidFieldError('The field does not exist.');
+          return next({
+            statusCode: 400,
+            message: `Invalid field: ${fieldName}`,
+          });
       }
     }
 
-    // ------Query the current collection and update the document
-    User.findOneAndUpdate(query, newData, { new: true })
-      .then((updateUser) => {
-        if (!updateUser) {
-          return next({
-            statusCode: 404,
-            message: 'User not found',
-          });
-        }
-        resp.status(200).json({
-          email: updateUser.email,
-          password: updateUser.password,
-          role: updateUser.role,
-        });
-      })
-      .catch((error) => {
-        return next({
-          statusCode: 500,
-          message: `Error updating product: ${error.message}`,
-        });
+    try {
+      // Check if the user exists
+      const user = await User.findOne(query);
+      if (!user) next({ statusCode: 404, message: 'User not found' });
+
+      //Check If there's a new password, encrypt it
+      if (newData.password) {
+        newData.password = bcrypt.hashSync(newData.password, 10);
+      }
+
+      // Update user data
+      const updatedUser = await User.findOneAndUpdate(query, newData, {
+        new: true,
       });
+
+      resp.json({
+        id: updatedUser._id,
+        email: updatedUser.email,
+        role: updatedUser.role,
+      });
+    } catch (error) {
+      console.error('Error updating user:', error.status, error.message);
+      next({ statusCode: 500 });
+    }
   },
 };
