@@ -29,7 +29,6 @@ const orders = require('../routes/orders');
  */
 const createOrder = async (req, resp, next) => {
   const { userId, client, products, status, dateEntry } = req.body;
-  // console.log('data:', userId, client, products);
   // Define a function to check if a value is a string
   const isString = (value) => typeof value === 'string' && value.trim() !== '';
 
@@ -45,7 +44,6 @@ const createOrder = async (req, resp, next) => {
   }
 
   products.forEach((product) => {
-    //console.log('product',!isValidProduct(product) || typeof product.qty !== 'number' || product.qty <= 0, !isValidProduct(product), typeof product.qty !== 'number',product.qty <= 0);
     if (
       !isValidProduct(product) ||
       typeof product.qty !== 'number' ||
@@ -167,7 +165,7 @@ const getOrders = async (req, resp, next) => {
         },
       })),
       status: order.status,
-      dataEntry: order.dateEntry,
+      dateEntry: order.dateEntry,
       dateProcessed: order.dateProcessed,
     }));
 
@@ -178,7 +176,7 @@ const getOrders = async (req, resp, next) => {
 
     if (startIndex > 0) {
       links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
-      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
+      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"`);
     }
 
     if (endIndex < totalOrders) {
@@ -363,7 +361,6 @@ const updateOrder = async (req, resp, next) => {
         status === 'delivered'
       )
     ) {
-      // console.log(status, 'Invalid field');
       return next({ statusCode: 400, message: 'Invalid field' });
     }
   }

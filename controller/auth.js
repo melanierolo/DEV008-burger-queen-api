@@ -30,7 +30,6 @@ const handleAuthentication = async (req, resp, next) => {
   // Si coinciden, manda un access token creado con jwt
   try {
     const user = await User.findOne({ email });
-    console.log(email, password);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next({

@@ -52,7 +52,7 @@ const getProducts = async (req, resp, next) => {
 
     if (startIndex > 0) {
       links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
-      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
+      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"`);
     }
 
     if (endIndex < totalProducts) {
@@ -102,9 +102,10 @@ const getProductById = async (req, res, next) => {
     res.json({
       id: product._id,
       name: product.name,
-      price: product.image,
+      price: product.price,
+      image: product.image,
       type: product.type,
-      dataEntry: product.dateEntry,
+      dateEntry: product.dateEntry,
     });
   } catch (error) {
     console.error('Error getting products:', error.message, error.status);
@@ -136,7 +137,6 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   const { name, price } = req.body;
   let { image, type } = req.body;
-  // console.log(name, price);
   if (!name || !price) {
     return next({ statusCode: 400, message: 'Name and price are required' });
   }

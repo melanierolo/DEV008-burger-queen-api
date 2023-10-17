@@ -64,7 +64,6 @@ const createTestUser = () =>
     body: __e2e.testUserCredentials,
   })
     .then((resp) => {
-      // console.log('test-createUser', resp.status);
       if (resp.status !== 200) {
         throw new Error(
           `Error: Could not create test user - response ${resp.status}`
@@ -168,11 +167,11 @@ module.exports = () =>
           .then(createTestUser)
           .then(resolve)
           .catch((err) => {
-            console.log('there was an error');
+            console.error('there was an error', err);
             kill(child.pid, 'SIGKILL', () => reject(err));
           });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   });
 
 // Export globals - ugly... :-(

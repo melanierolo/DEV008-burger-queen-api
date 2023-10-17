@@ -66,7 +66,7 @@ describe('GET /products/:productid', () => {
           expect(typeof product.name).toBe('string');
           expect(typeof product.price).toBe('number');
         });
-        return fetchAsTestUser(`/products/${json[0]._id}`).then((resp) => ({
+        return fetchAsTestUser(`/products/${json[0].id}`).then((resp) => ({
           resp,
           product: json[0],
         }));
