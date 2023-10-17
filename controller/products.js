@@ -102,9 +102,10 @@ const getProductById = async (req, res, next) => {
     res.json({
       id: product._id,
       name: product.name,
-      price: product.image,
+      price: product.price,
+      image: product.image,
       type: product.type,
-      dataEntry: product.dateEntry,
+      dateEntry: product.dateEntry,
     });
   } catch (error) {
     console.error('Error getting products:', error.message, error.status);

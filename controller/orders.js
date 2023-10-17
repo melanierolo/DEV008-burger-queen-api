@@ -165,7 +165,7 @@ const getOrders = async (req, resp, next) => {
         },
       })),
       status: order.status,
-      dataEntry: order.dateEntry,
+      dateEntry: order.dateEntry,
       dateProcessed: order.dateProcessed,
     }));
 
