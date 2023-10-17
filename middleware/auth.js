@@ -12,7 +12,7 @@ module.exports = (secret) => (req, resp, next) => {
   if (type.toLowerCase() !== 'bearer') {
     return next();
   }
-  // console.log(token, 'auth');
+
   jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
       // console.error(err.message, err.status);

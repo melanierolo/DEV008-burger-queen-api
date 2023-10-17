@@ -101,7 +101,6 @@ module.exports = {
       const user = isEmail
         ? await User.findOne({ email: userData })
         : await User.findById(userData);
-      //console.log(user);
       if (!user) {
         return next({ statusCode: 404, message: 'User not found' });
       }
@@ -159,7 +158,6 @@ module.exports = {
     if (role !== 'admin' && role !== 'waiter' && role !== 'chef') {
       role = 'waiter';
     }
-    // console.log(role);
     // Check if a user with the same email already exists
     const checkExistingUser = (email) => {
       return User.exists({ email: email });
@@ -167,7 +165,6 @@ module.exports = {
     // Check if user with the same email already exists
     checkExistingUser(email)
       .then((userExists) => {
-        // console.log('checkExistingUser-createUser', userExists);
         if (userExists) {
           return res.status(403).json({
             message: 'User with the same email already exists.',
@@ -182,7 +179,6 @@ module.exports = {
         // User model-  Mongoose
         User.create(newUser)
           .then((savedUser) => {
-            //console.log('user-create', savedUser);
             res.status(200).json({
               id: savedUser._id,
               email: savedUser.email,

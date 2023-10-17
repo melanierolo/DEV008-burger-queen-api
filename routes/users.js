@@ -17,7 +17,6 @@ async function initAdminUser(app, next) {
   if (!adminEmail || !adminPassword) {
     return;
   }
-  console.log(adminEmail, adminPassword);
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
@@ -28,10 +27,8 @@ async function initAdminUser(app, next) {
   // si no existe, hay que guardarlo
   try {
     const existingUser = await User.findOne({ email: adminUser.email });
-    //console.log('----adminUser', existingUser);
     if (!existingUser) {
       await User.create(adminUser);
-      //console.log('Admin user created');
     }
     next();
   } catch (error) {
