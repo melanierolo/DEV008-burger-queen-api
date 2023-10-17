@@ -182,21 +182,21 @@ const getOrders = async (req, resp, next) => {
     /*Add pagination link headers*/
     const totalPages = Math.ceil(totalOrders / limit);
     const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
-    const links = {};
+    const links = [];
 
     if (startIndex > 0) {
-      links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
-      links.first = `${baseUrl}?page=1&limit=${limit}`;
+      links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
+      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
     }
 
-    if (endIndex > orders.length) {
-      links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
-      links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+    if (endIndex > totalPages) {
+      links.push(`<${baseUrl}?page=${page + 1}&limit=${limit}>; rel="next"`);
+      links.push(`<${baseUrl}?page=${totalPages}&limit=${limit}>; rel="last"`);
     }
 
     // Set pagination link headers in the response
-    resp.setHeader('link', JSON.stringify(links));
-    console.log(response);
+    resp.setHeader('link', JSON.stringify(links.join(',')));
+
     // Send the list of orders as a JSON response
     resp.json(response);
   } catch (error) {
