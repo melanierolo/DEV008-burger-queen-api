@@ -189,7 +189,7 @@ const getOrders = async (req, resp, next) => {
       links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
     }
 
-    if (endIndex > totalPages) {
+    if (endIndex < totalOrders) {
       links.push(`<${baseUrl}?page=${page + 1}&limit=${limit}>; rel="next"`);
       links.push(`<${baseUrl}?page=${totalPages}&limit=${limit}>; rel="last"`);
     }
