@@ -52,7 +52,7 @@ const getProducts = async (req, resp, next) => {
 
     if (startIndex > 0) {
       links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
-      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
+      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"`);
     }
 
     if (endIndex < totalProducts) {
