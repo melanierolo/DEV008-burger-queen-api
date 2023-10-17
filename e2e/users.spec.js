@@ -41,9 +41,7 @@ describe('GET /users', () => {
         return resp.json().then((json) => ({ headers: resp.headers, json }));
       })
       .then(({ headers, json }) => {
-        console.log('headers-1', headers);
         const linkHeader = parseLinkHeader(JSON.parse(headers.get('link')));
-        console.log('linkHeader', linkHeader);
         const nextUrlObj = url.parse(linkHeader.next);
         const lastUrlObj = url.parse(linkHeader.last);
         const nextQuery = qs.parse(nextUrlObj.query);
@@ -68,7 +66,6 @@ describe('GET /users', () => {
         return resp.json().then((json) => ({ headers: resp.headers, json }));
       })
       .then(({ headers, json }) => {
-        console.log('headers-2', headers);
         const linkHeader = parseLinkHeader(JSON.parse(headers.get('link')));
 
         const firstUrlObj = url.parse(linkHeader.first);

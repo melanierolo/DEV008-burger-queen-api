@@ -64,7 +64,7 @@ const createTestUser = () =>
     body: __e2e.testUserCredentials,
   })
     .then((resp) => {
-      console.log('test-createUser', resp.status);
+      // console.log('test-createUser', resp.status);
       if (resp.status !== 200) {
         throw new Error(
           `Error: Could not create test user - response ${resp.status}`

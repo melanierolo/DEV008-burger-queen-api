@@ -13,7 +13,6 @@ describe('POST /products', () => {
 
   it('should fail with 400 when bad props', () =>
     fetchAsAdmin('/products', { method: 'POST' }).then((resp) => {
-      console.log('should fail with 400 when bad props', resp);
       return expect(resp.status).toBe(400);
     }));
 

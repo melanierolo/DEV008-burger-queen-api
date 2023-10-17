@@ -29,7 +29,7 @@ const orders = require('../routes/orders');
  */
 const createOrder = async (req, resp, next) => {
   const { userId, client, products, status, dateEntry } = req.body;
-  console.log('data:', userId, client, products);
+  // console.log('data:', userId, client, products);
   // Define a function to check if a value is a string
   const isString = (value) => typeof value === 'string' && value.trim() !== '';
 
@@ -45,15 +45,7 @@ const createOrder = async (req, resp, next) => {
   }
 
   products.forEach((product) => {
-    console.log(
-      'product',
-      !isValidProduct(product) ||
-        typeof product.qty !== 'number' ||
-        product.qty <= 0,
-      !isValidProduct(product),
-      typeof product.qty !== 'number',
-      product.qty <= 0
-    );
+    //console.log('product',!isValidProduct(product) || typeof product.qty !== 'number' || product.qty <= 0, !isValidProduct(product), typeof product.qty !== 'number',product.qty <= 0);
     if (
       !isValidProduct(product) ||
       typeof product.qty !== 'number' ||
@@ -371,7 +363,7 @@ const updateOrder = async (req, resp, next) => {
         status === 'delivered'
       )
     ) {
-      console.log(status, 'Invalid field');
+      // console.log(status, 'Invalid field');
       return next({ statusCode: 400, message: 'Invalid field' });
     }
   }
