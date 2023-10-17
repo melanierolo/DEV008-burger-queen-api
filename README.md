@@ -6,10 +6,8 @@
 - [2. Resumen del proyecto](#2-resumen-del-proyecto)
 - [3. API endpoints](#3-api-endpoints)
 - [4. Pruebas End-To-End](#4-pruebas-end-to-end)
-- [5. Criterios de aceptación mínimos del proyecto](#5-criterios-de-aceptaci%C3%B3n-m%C3%ADnimos-del-proyecto)
+- [5. Variables de entorno](#5-variables-de-entorno)
 - [6. Objetivos de aprendizaje](#6-objetivos-de-aprendizaje)
-- [6. Hacker (Devops) Edition con Docker](#6-hacker-%28devops%29-edition-con-docker)
-- [7. Pistas, tips y lecturas complementarias](#7-pistas-tips-y-lecturas-complementarias)
 
 ## 1. Preámbulo
 
@@ -230,11 +228,11 @@ Nuestra aplicación usa las siguientes variables de entorno:
   - [Routing](https://expressjs.com/en/guide/routing.html)
     </p></details>
 
-- [ ] **Uso y creación de middleware**
+  - [ ] **Uso y creación de middleware**
 
     <details><summary>Links</summary><p>
 
-  - [Using middleware](https://expressjs.com/en/guide/using-middleware.html#using-middleware)
+    - [Using middleware](https://expressjs.com/en/guide/using-middleware.html#using-middleware)
     </p></details>
 
 ### HTTP
@@ -318,33 +316,33 @@ Nuestra aplicación usa las siguientes variables de entorno:
   - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
     </p></details>
 
-- [ ] **Operaciones CRUD (Create-Read-Update-Delete)**
+  - [ ] **Operaciones CRUD (Create-Read-Update-Delete)**
 
     <details><summary>Links</summary><p>
 
-      - [MongoDB CRUD Operations - Docs (en inglés)](https://docs.mongodb.com/manual/crud/)
-      - [Insert Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/insert-documents/)
-      - [Query Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/query-documents/)
-      - [Update Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/update-documents/)
-      - [Delete Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/remove-documents/)
+    - [MongoDB CRUD Operations - Docs (en inglés)](https://docs.mongodb.com/manual/crud/)
+    - [Insert Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/insert-documents/)
+    - [Query Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/query-documents/)
+    - [Update Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/update-documents/)
+    - [Delete Documents - Docs (en inglés)](https://docs.mongodb.com/manual/tutorial/remove-documents/)
 
   </p></details>
 
-- [ ] **Modelos y esquemas de datos**
+  - [ ] **Modelos y esquemas de datos**
     <details><summary>Links</summary><p>
 
-  - [Schema Validation - Docs (en inglés)](https://docs.mongodb.com/manual/core/schema-validation/)
-  - [Data Model Design - Docs (en inglés)](https://docs.mongodb.com/manual/core/data-model-design/)
-  - [Schema Validation and Data Model - mongoose](https://www.mongodb.com/developer/languages/javascript/getting-started-with-mongodb-and-mongoose/)
-  - [Mongoose Schemas Creating a model](https://www.geeksforgeeks.org/mongoose-schemas-creating-a-model/)
-  </p></details>
+    - [Schema Validation - Docs (en inglés)](https://docs.mongodb.com/manual/core/schema-validation/)
+    - [Data Model Design - Docs (en inglés)](https://docs.mongodb.com/manual/core/data-model-design/)
+    - [Schema Validation and Data Model - mongoose](https://www.mongodb.com/developer/languages/javascript/getting-started-with-mongodb-and-mongoose/)
+    - [Mongoose Schemas Creating a model](https://www.geeksforgeeks.org/mongoose-schemas-creating-a-model/)
+    </p></details>
 
-- [ ] **Respaldo y restauración (backup/restore)**
+  - [ ] **Respaldo y restauración (backup/restore)**
 
     <details><summary>Links</summary><p>
 
-  - [MongoDB Backup Methods - Docs (en inglés)](https://docs.mongodb.com/manual/core/backups/)
-  </p></details>
+    - [MongoDB Backup Methods - Docs (en inglés)](https://docs.mongodb.com/manual/core/backups/)
+    </p></details>
 
 ### Bases de datos
 
@@ -364,6 +362,8 @@ Nuestra aplicación usa las siguientes variables de entorno:
 
 ### Swagger
 
+- [ ] **Swagger**
+
   <details><summary>Links</summary><p>
     - [Link a la documentación - BurgerQueenAPI](https://app.swaggerhub.com/apis-docs/ssinuco/BurgerQueenAPI/2.0.0)
     - [Link a la documentación - Swagger](https://swagger.io/docs/)
@@ -371,8 +371,10 @@ Nuestra aplicación usa las siguientes variables de entorno:
 
 ### Despliegue (Deployment)
 
+- [ ] **Despliegue**
+
   <details><summary>Links</summary><p>
-  
+
   - [Vercel](https://vercel.com/) es una opción enfocada
     a aplicaciones web estáticas (como las que se construyen con React). Sin embargo,
     Vercel también nos permite desplegar aplicaciones node usando [Serverless
@@ -385,10 +387,10 @@ Nuestra aplicación usa las siguientes variables de entorno:
 ### Hacker (Devops) Edition con Docker
 
 - [ ] **Docker-compose**
-<details>
-  <summary>Detalles</summary>
-  <p>Lee la guía para docker incluida en el proyecto para más información. Para probar tu configuración de docker, te recomendamos usar `docker-compose` localmente (en tu computadora) para ejecutar la aplicación junto con la base de datos.</p>
-</details>
+  <details>
+    <summary>Detalles</summary>
+    <p>Lee la guía para docker incluida en el proyecto para más información. Para probar tu configuración de docker, te recomendamos usar `docker-compose` localmente (en tu computadora) para ejecutar la aplicación junto con la base de datos.</p>
+  </details>
 
 - [ ] **Despliegue**
   <details>
@@ -400,12 +402,14 @@ Nuestra aplicación usa las siguientes variables de entorno:
 
 ### Otros recursos
 
-  <details><summary>Links</summary><p>
+- [ ] **Extra links**
 
-- [docker](https://docs.docker.com/)
-- [docker compose](https://docs.docker.com/compose/)
-- [¿Qué es Docker? | Curso de Docker | Platzi Cursos](https://youtu.be/hQgvt-s-AHQ)
-- [Postman](https://www.getpostman.com)
-- [Variable de entorno - Wikipedia](https://es.wikipedia.org/wiki/Variable_de_entorno)
-- [`process.env` - Node.js docs](https://nodejs.org/api/process.html#process_process_env)
-  </p></details>
+  <details><summary>Links</summary><p>
+  
+  - [docker](https://docs.docker.com/)
+  - [docker compose](https://docs.docker.com/compose/)
+  - [¿Qué es Docker? | Curso de Docker | Platzi Cursos](https://youtu.be/hQgvt-s-AHQ)
+  - [Postman](https://www.getpostman.com)
+  - [Variable de entorno - Wikipedia](https://es.wikipedia.org/wiki/Variable_de_entorno)
+  - [`process.env` - Node.js docs](https://nodejs.org/api/process.html#process_process_env)
+    </p></details>
