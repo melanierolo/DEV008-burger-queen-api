@@ -48,19 +48,19 @@ const getProducts = async (req, resp, next) => {
     /*Add pagination link headers*/
     const totalPages = Math.ceil(totalProducts / limit);
     const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
-    const links = {};
+    const links = [];
 
     if (startIndex > 0) {
-      links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
-      links.first = `${baseUrl}?page=1&limit=${limit}`;
+      links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
+      links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
     }
 
-    if (endIndex > products.length) {
-      links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
-      links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+    if (endIndex < totalProducts) {
+      links.push(`<${baseUrl}?page=${page + 1}&limit=${limit}>; rel="next"`);
+      links.push(`<${baseUrl}?page=${totalPages}&limit=${limit}>; rel="last"`);
     }
     // Set pagination link headers in the response
-    resp.setHeader('link', JSON.stringify(links));
+    resp.setHeader('link', JSON.stringify(links.join(',')));
 
     // Send the list of products as a JSON response
     resp.json(response);
@@ -136,7 +136,7 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   const { name, price } = req.body;
   let { image, type } = req.body;
-  console.log(name, price);
+  // console.log(name, price);
   if (!name || !price) {
     return next({ statusCode: 400, message: 'Name and price are required' });
   }

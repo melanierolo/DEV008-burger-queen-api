@@ -45,20 +45,21 @@ module.exports = {
       /*Add pagination link headers*/
       const totalPages = Math.ceil(totalUsers / limit);
       const baseUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
-      const links = {};
+      const links = [];
 
       if (endIndex < totalUsers) {
-        links.next = `${baseUrl}?page=${page + 1}&limit=${limit}`;
-        links.last = `${baseUrl}?page=${totalPages}&limit=${limit}`;
+        links.push(`<${baseUrl}?page=${page + 1}&limit=${limit}>; rel="next"`);
+        links.push(
+          `<${baseUrl}?page=${totalPages}&limit=${limit}>; rel="last"`
+        );
       }
 
       if (startIndex > 0) {
-        links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}`;
-        links.first = `${baseUrl}?page=1&limit=${limit}`;
+        links.push(`<${baseUrl}?page=${page - 1}&limit=${limit}>; rel="prev"`);
+        links.push(`<${baseUrl}?page=1&limit=${limit}>; rel="first"'`);
       }
-
       // Set pagination link headers in the response
-      resp.setHeader('link', JSON.stringify(links));
+      resp.setHeader('link', JSON.stringify(links.join(',')));
 
       resp.json(response);
     } catch (error) {
@@ -166,7 +167,7 @@ module.exports = {
     // Check if user with the same email already exists
     checkExistingUser(email)
       .then((userExists) => {
-        console.log('checkExistingUser-createUser', userExists);
+        // console.log('checkExistingUser-createUser', userExists);
         if (userExists) {
           return res.status(403).json({
             message: 'User with the same email already exists.',

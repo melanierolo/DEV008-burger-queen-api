@@ -4,13 +4,16 @@ const config = require('../config');
 
 const { fetch, fetchAsTestUser, fetchAsAdmin, fetchWithAuth } = process;
 
-const parseLinkHeader = (str) =>
-  str.split(',').reduce((memo, item) => {
+const parseLinkHeader = (str) => {
+  if (!str) return {}; // Add this line to handle the case when str is null or undefined
+  const linksArray = str.split(',');
+  return linksArray.reduce((memo, item) => {
     const [, value, key] = /^<(.*)>;\s+rel="(first|last|prev|next)"/.exec(
       item.trim()
     );
     return { ...memo, [key]: value };
   }, {});
+};
 
 describe('GET /users', () => {
   it('should fail with 401 when no auth', () =>
@@ -38,8 +41,7 @@ describe('GET /users', () => {
         return resp.json().then((json) => ({ headers: resp.headers, json }));
       })
       .then(({ headers, json }) => {
-        const linkHeader = parseLinkHeader(headers.get('link'));
-
+        const linkHeader = parseLinkHeader(JSON.parse(headers.get('link')));
         const nextUrlObj = url.parse(linkHeader.next);
         const lastUrlObj = url.parse(linkHeader.last);
         const nextQuery = qs.parse(nextUrlObj.query);
@@ -52,16 +54,19 @@ describe('GET /users', () => {
 
         expect(Array.isArray(json)).toBe(true);
         expect(json.length).toBe(1);
-        expect(json[0]).toHaveProperty('_id');
+        expect(json[0]).toHaveProperty('id');
         expect(json[0]).toHaveProperty('email');
-        return fetchAsAdmin(nextUrlObj.path);
+        return nextUrlObj.path;
+      })
+      .then((nextUrl) => {
+        return fetchAsAdmin(`/users${nextUrl.slice(1)}`);
       })
       .then((resp) => {
         expect(resp.status).toBe(200);
         return resp.json().then((json) => ({ headers: resp.headers, json }));
       })
       .then(({ headers, json }) => {
-        const linkHeader = parseLinkHeader(headers.get('link'));
+        const linkHeader = parseLinkHeader(JSON.parse(headers.get('link')));
 
         const firstUrlObj = url.parse(linkHeader.first);
         const prevUrlObj = url.parse(linkHeader.prev);
@@ -76,12 +81,12 @@ describe('GET /users', () => {
 
         expect(Array.isArray(json)).toBe(true);
         expect(json.length).toBe(1);
-        expect(json[0]).toHaveProperty('_id');
+        expect(json[0]).toHaveProperty('id');
         expect(json[0]).toHaveProperty('email');
       }));
 });
 
-describe.only('GET /users/:uid', () => {
+describe('GET /users/:uid', () => {
   it('should fail with 401 when no auth', () =>
     fetch('/users/foo@bar.baz').then((resp) => expect(resp.status).toBe(401)));
 
