@@ -7,6 +7,7 @@ const routes = require('./routes');
 const pkg = require('./package.json');
 const { connect } = require('./connect.js');
 const { port, secret } = config;
+const cors = require('cors');
 
 // Connect to MongoDB using Mongoose
 connect();
@@ -20,6 +21,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(authMiddleware(secret));
 app.use(morgan('dev'));
+
+// CORS
+const corsOptions = {
+  origin: '*',
+  methods: 'PUT,PATCH,GET,DELETE,POST',
+};
+
+app.use(cors(corsOptions));
 
 routes(app, (err) => {
   if (err) {
