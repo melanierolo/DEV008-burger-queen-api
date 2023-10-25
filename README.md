@@ -1,5 +1,3 @@
-![Test-end-to-end_API](https://github.com/melanierolo/DEV008-burger-queen-api/assets/89095047/4bf63051-8204-4a6f-8673-cb0d03fcf3a9)# Burger Queen - API con Node.js
-
 ## Índice
 
 - [1. Preámbulo](#1-pre%C3%A1mbulo)
