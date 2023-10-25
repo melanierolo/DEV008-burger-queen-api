@@ -1,4 +1,4 @@
-# Burger Queen - API con Node.js
+![Test-end-to-end_API](https://github.com/melanierolo/DEV008-burger-queen-api/assets/89095047/4bf63051-8204-4a6f-8673-cb0d03fcf3a9)# Burger Queen - API con Node.js
 
 ## Índice
 
@@ -106,6 +106,7 @@ npm run test:e2e
 # Corre pruebas e2e sobre URL remota
 REMOTE_URL=<TODO: poner URL> npm run test:e2e
 ```
+![Test-end-to-end_API](https://github.com/melanierolo/DEV008-burger-queen-api/assets/89095047/78bc7e7b-bc5c-4104-b517-b46b525b5421)
 
 ### 5. Variables de entorno
 
