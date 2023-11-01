@@ -4,3 +4,4 @@ docs
 .env
 .env.develop
 .env.production
+.vercel
