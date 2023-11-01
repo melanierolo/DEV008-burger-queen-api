@@ -6,21 +6,19 @@ const httpErrors = {
   500: 'Internal server error',
 };
 
-const isKnownHTTPErrorStatus = (num) => (
-  typeof num === 'number' && Object.keys(httpErrors).indexOf(`${num}`) >= 0
-);
+const isKnownHTTPErrorStatus = (num) =>
+  typeof num === 'number' && Object.keys(httpErrors).indexOf(`${num}`) >= 0;
 
-// eslint-disable-next-line no-unused-vars
 module.exports = (err, req, resp, next) => {
-  const statusCode = (isKnownHTTPErrorStatus(err))
-    ? err
-    : err.statusCode || 500;
-  const message = err.message || httpErrors[statusCode] || err;
+  const statusCode = isKnownHTTPErrorStatus(err.statusCode)
+    ? err.statusCode
+    : 500;
+  const message =
+    err.message || httpErrors[statusCode] || 'Internal server error';
 
   if (statusCode === 500) {
     console.error(statusCode, message);
   }
 
   resp.status(statusCode).json({ statusCode, message });
-  next();
 };
