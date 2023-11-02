@@ -6,7 +6,8 @@
 - [3. API endpoints](#3-api-endpoints)
 - [4. Pruebas End-To-End](#4-pruebas-end-to-end)
 - [5. Variables de entorno](#5-variables-de-entorno)
-- [6. Objetivos de aprendizaje](#6-objetivos-de-aprendizaje)
+- [6. Demo](#6-demo)
+- [7. Objetivos de aprendizaje](#7-objetivos-de-aprendizaje)
 
 ## 1. Preámbulo
 
@@ -128,8 +129,12 @@ Nuestra aplicación usa las siguientes variables de entorno:
   por defecto `admin@localhost.com`.
 - `ADMIN_PASSWORD`: Si hemos especificado un `ADMIN_EMAIL`, debemos pasar
   también una contraseña para el usuario admin. Valor por defecto: `changeme`.
+## 6. Demo
+Video de las pruebas de la API REST en Postman:
 
-## 6. Objetivos de aprendizaje
+[![Video - Demo](http://img.youtube.com/vi/C-HBNxQfMNU/0.jpg)](https://youtu.be/C-HBNxQfMNU)
+
+## 7. Objetivos de aprendizaje
 
 ### Node.js
 
